@@ -14,7 +14,7 @@ Plotter Braille
 
 https://www.youtube.com/watch?v=OPMQcMbPuBo
 
-# External libs
+# Credits
 Serial communication Java/Arduino is powered by jSerialComm
 
 https://github.com/Fazecast/jSerialComm
