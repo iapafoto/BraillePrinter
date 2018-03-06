@@ -1,4 +1,4 @@
-# BraillePrinter
+# BraillePrinter (Beta)
 Plotter Braille
 - OpenScad: Laser cut design
 - Arduino: Convert unicode Braille to move)
@@ -10,7 +10,7 @@ Plotter Braille
 
 ![Alt text](https://github.com/iapafoto/BraillePrinter/blob/master/Media/beta.jpg)
 
-# In action (Video)
+# Beta In action (Video)
 
 https://www.youtube.com/watch?v=OPMQcMbPuBo
 
