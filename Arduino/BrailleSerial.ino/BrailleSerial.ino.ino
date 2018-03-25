@@ -1,4 +1,6 @@
-//#define WITH_MOTORS
+#define WITH_MOTORS
+#define WITH_SOLENOIDE
+#define WITH_X0_SWITCH
 
 #define DEBUG
 
@@ -13,6 +15,7 @@
 #endif
 
 int PIN_X0 = 10; // SER1
+int PIN_SOLENOID = 2;
 
 int MARGIN_X = 30, MARGIN_Y = 30;
 int MIN_X = 0 + MARGIN_X;
@@ -49,12 +52,15 @@ int brailleOrder[] = { 1,2,3,7,8,6,5,4 };
 
 void setup() {
   pinMode(LEDpin, OUTPUT);
+  
   Serial.begin(9600);
   Serial.setTimeout(50);
 
-// Butee de fin de course X
-  pinMode(PIN_X0, INPUT);
-
+// Butee de fin de course X (utilisation de la resistance pull up)
+  pinMode(PIN_X0, INPUT_PULLUP);
+// Solenoide pour embossage
+  pinMode(PIN_SOLENOID,OUTPUT);
+  
 // Les moteurs  
 #ifdef WITH_MOTORS
   motor1.setSpeed(30);  // 10 rpm   
@@ -118,6 +124,15 @@ void moveTo(double chx, double chy) {
     }
 }
 
+void embosse() {
+  #ifdef WITH_SOLENOIDE
+     digitalWrite(PIN_SOLENOID, HIGH);       
+     delay(40);
+     digitalWrite(PIN_SOLENOID, LOW);
+     delay(40); 
+  #endif // WITH_SOLENOIDE
+}
+
 // bch = (unicode-0x2800);
 void drawBrailleChar(char bch) {
 #ifdef DEBUG
@@ -129,6 +144,7 @@ void drawBrailleChar(char bch) {
        id = brailleOrder[i];
        if ((bch & (1<<id)) != 0) {
           moveTo(id<7?(id-1)/3:id-7, id<7?((id-1)%3):3);
+          embosse();
 #ifdef DEBUG
           Serial.print("ID:");
           Serial.println(id);          
@@ -146,7 +162,7 @@ void drawBrailleChar(char bch) {
 void loop() {
   
   if (Serial.available()>0){ //if data has been written to the Serial stream
-
+/*
    // Serial.print("⠂⠃⠄⠅⠆⠇⠈⠉⠊⠋⠌⠍⠎⠏");
    String command = Serial.readString();
 
@@ -155,8 +171,8 @@ void loop() {
     //Serial.print("---");
     
   }
-  
- /*   
+  */
+   
     data = Serial.read();
     Serial.print(data);
          
@@ -210,7 +226,7 @@ void loop() {
         motor2.release();
     #endif
   }
-*/
+
   
 }
 
