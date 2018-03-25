@@ -39,7 +39,7 @@ double ch_scale = 3; // distance between dots on chars
 double MOTOR_SCALE_X = 10; // step to mm 
 double MOTOR_SCALE_Y = 8; // step to mm
 double ONE_LINE_Y = ch_scale * 4;  // Size of one line
-double ONE_CHAR_X = ch_scale * 4;  // Size of One char
+double ONE_CHAR_X = ch_scale * 3.2;  // Size of One char
 
 #define BACK -1
 #define FORW 1
