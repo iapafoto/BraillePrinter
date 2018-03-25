@@ -22,6 +22,8 @@ dRaccordAxe58 = 14;  // Thin : 14mm  - Standard 19mm
 AXE_2_END = 5; //5 : piece en cuivre,  8 : Roulement 686 ZZ
 
 withStepper28BYJ48 = false;
+// Avec la petite plaque pour soutenir le bout de la courroie
+withE2 = true;
 
 module stepper() {
    if (withStepper28BYJ48) 
@@ -93,8 +95,10 @@ module nema17Fix(withSquare, withFix, withAxis, withBigAxis) {
         translate([-fix/2,fix/2]) circle(r=rFix);
         translate([-fix/2,-fix/2]) circle(r=rFix);
         // add fix for 28BYJ48
-        translate([-35/2,8]) circle(r=rFix);
-        translate([35/2,8]) circle(r=rFix);
+        if (withStepper28BYJ48) {
+            translate([-35/2,8]) circle(r=rFix);
+            translate([35/2,8]) circle(r=rFix);
+        }
     }
     
 }
@@ -109,18 +113,19 @@ module plaque() {
         }
 }
 
-module plaqueA() {
+
+module plaqueA0() {
     difference() {
         plaque();
         union() {
             translate([0,yMotor1]) rounded_square(11, 22, 2., true);
             translate([10,yGround-ep/2]) square([30, ep]);
             translate([-40,yGround-ep/2]) square([30, ep]);
-        }
+         }
     } 
 }
 
-module plaqueB() {
+module plaqueB0() {
     difference() {
         union() {
             plaque();
@@ -146,29 +151,50 @@ module plaqueB() {
             translate([-30,yGround-ep/2]) square([30, ep]);
             translate([20,yGround+ep*.5]) square([30, ep]);
             translate([-60,yGround+ep*.5]) square([40, ep]);
-
         }
     } 
 }
 
+module plaqueA() {
+    difference() { 
+        plaqueA0();
+        // interrupteur fin de course X
+        translate([0,yMotor1-xAxis1-8.5]) square([12.6-.5,5.7-1.5],center=true);  // 6.5 ?
+    }
+}
+
+module plaqueB() {
+    difference() { 
+        plaqueB0();
+        // interrupteur fin de course X
+        translate([0,yMotor1-xAxis1-8.5]) square([12.6,5.7],center=true);  // 6.5 ?
+    }
+}
+
 module plaqueC() {
     difference() { 
-        plaqueB();
+        plaqueB0();
         union() {
             translate([xMotor2,yMotor2]) nema17Fix(false, true, true, false);
             // Passage du raccort 5mm vers 8mm
             translate([xMotor2,yMotor2]) circle(dRaccordAxe58/2+2);
-            translate([-plC_dx-ep/2,yMotor1]) square([ep2,50], center = false); 
+            // Fixation de la petite plaque en bout de courroie
+            if (withE2) {
+                translate([-plC_dx-ep/2,yMotor1]) square([ep2,50], center = false); 
+            }
         }
     }
 }
 
 module plaqueD() {
     difference() { 
-        plaqueA();
+        plaqueA0();
     //    translate([0,yMotor1]) rounded_square(30, 6, 2, true);
         union() {
-            translate([-plC_dx-ep/2,yMotor1]) square([ep2,50], center = false); 
+            // Fixation de la petite plaque en bout de courroie
+            if (withE2) {
+                translate([-plC_dx-ep/2,yMotor1]) square([ep2,50], center = false); 
+            }
             translate([xMotor2,yMotor2]) nema17Fix(false, true, true, true);
         }
     }
@@ -185,14 +211,15 @@ module plaqueE() {
             translate([42+ep*2+workWidth,-1]) square([ep*2,21]);
             translate([42,-1]) square([ep*2,21]);
 
-            translate([42+ep*2+10,-25]) rounded_square(workWidth-20,40,10);
-            translate([42+ep*2+10,31.2])  rounded_square(workWidth-20,40,10);
+            translate([42+ep*2+10,20]) rounded_square(workWidth-20,12,5);
+           // translate([42+ep*2+10,31.2]) rounded_square(workWidth-20,40,10);
 
             translate([42+ep*4+workWidth+10,21]) circle(2.5);
         } 
     }
 }
 
+// la petite plaque carre pour soutenir l'axe 
 module plaqueE2() {
     difference() {
         translate([0,0]) rounded_square(30+2*ep, 42.3,10);
@@ -220,8 +247,7 @@ module plaqueF() {
           translate([18, 7]) rounded_square(10,197,2, center = false);  
 // trou pour viser            
          //   translate([xMotor2+30,workWidth-30]) rounded_square(20,50,3);
-   
-            //      translate([xMotor2+50, workWidth+2*ep-25-6]) square([20,50]);
+         //      translate([xMotor2+50, workWidth+2*ep-25-6]) square([20,50]);
         }
      //   translate([plC_dx-ep/2,yMotor1]) square([ep,50], center = false); 
     }
@@ -249,10 +275,14 @@ module chariotCut() {
             translate([0,0]) rounded_square(25,2.5,1.2, true);
             translate([0,11]) rounded_square(16,2.5,1.2, true);
             translate([0,-11]) rounded_square(16,2.5,1.2, true);
-            translate([-xAxis1-5,0]) rounded_square(2.5,20,1.2, true);
-            translate([xAxis1+5,0]) rounded_square(2.5,20,1.2, true);
-            translate([-xAxis1+5,0]) rounded_square(2.5,20,1.2, true);
-            translate([xAxis1-5,0]) rounded_square(2.5,20,1.2, true);
+            
+            for (dy=[-10,0,10]) {
+                translate([-xAxis1-5,dy]) rounded_square(2.5,5,1., true);
+                translate([-xAxis1+5,dy]) rounded_square(2.5,5,1., true);
+                
+                translate([xAxis1-5,dy]) rounded_square(2.5,5,1., true);
+                translate([xAxis1+5,dy]) rounded_square(2.5,5,1., true);                        
+            }
         }
     }
 }
@@ -317,8 +347,9 @@ module assembled() {
     color([0,1,0]) translate([0,0,workWidth+3*ep]) linear_extrude(height=ep) plaqueD();
 
     color([1,0,0]) translate([plC_dx+ep/2.,yMotor1-21,-42]) rotate(270,[0,1,0]) linear_extrude(height=ep) plaqueE();
-    color([1,.5,.5]) translate([-plC_dx+ep/2.,yMotor1-11,workWidth+2*ep-10]) rotate(270,[0,1,0]) linear_extrude(height=ep) plaqueE2();
-
+    if (withE2) {
+        color([1,.5,.5]) translate([-plC_dx+ep/2.-ep2,yMotor1-21,workWidth+2*ep-10]) rotate(270,[0,1,0]) linear_extrude(height=ep2) plaqueE2();
+    }
     color([1,1,0]) translate([-120/2,yGround+ep/2,2*ep]) rotate([90,0,0]) linear_extrude(height=ep) plaqueF();
     color([1,.5,0]) translate([-120/2,yGround+ep+ep/2,2*ep]) rotate([90,0,0]) linear_extrude(height=ep) plaqueG();
 
@@ -328,19 +359,18 @@ module assembled() {
      if (horizontal) {
          translate([xAxis1,yMotor1,ep]) cylinder(r=3,h=workWidth+2*ep);
          translate([-xAxis1,yMotor1,ep]) cylinder(r=3,h=workWidth+2*ep);     
-         color([0,0,1]) translate([0,yMotor1-5-1.5,115]) rotate([90,0,0]) linear_extrude(3) chariotCut();
+         color([0,0,1]) translate([0,yMotor1-5-1.5,15]) rotate([90,0,0])           linear_extrude(3) chariotCut();
          translate([0,yMotor1-6-3,100+15]) rotate([90,0,0]) solenoid();
      } else {
         translate([0,yMotor1+xAxis1,ep]) cylinder(r=3,h=workWidth+2*ep);
         translate([0,yMotor1-xAxis1,ep]) cylinder(r=3,h=workWidth+2*ep);
-        color([0,0,1]) translate([-9,yMotor1,115]) rotate([90,0,90]) linear_extrude(3) chariotCut();
+        color([0,0,1]) translate([-9,yMotor1,115]) rotate([90,0,90])                linear_extrude(3) chariotCut();
         translate([-15,yMotor1-6-3+25,100+15]) rotate([90,0,0]) solenoid();
      }
      translate([0,yMotor1,100]) linearBearing();
      
      
     translate([xMotor2,yMotor2,ep]) cylinder(r=4,h=workWidth+2*ep);
-
 
     translate([xMotor2,yMotor2,workWidth+4*ep-3-25]) cylinder(r=dRaccordAxe58/2.,h=25);
     translate([xMotor2,yMotor2,workWidth+4*ep]) rotate(180, [1,0,0]) stepper();
@@ -371,8 +401,9 @@ module cut3mm() {
 
 
 //assembled();
-//cut3mm();
 
+
+//cut3mm();
 cut6mm();
 
 //nema17(false, true, true, false);

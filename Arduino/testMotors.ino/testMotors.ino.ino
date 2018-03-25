@@ -9,6 +9,9 @@
 AF_Stepper motor1(200, 1);
 AF_Stepper motor2(200, 2);
 
+//AF_Stepper motor1(60, 1);
+//AF_Stepper motor2(60, 2);
+
 int PIN_X0 = 10;
 
 int isXEnd = 0;
@@ -40,24 +43,26 @@ void setup() {
 pinMode(PIN_X0, INPUT);
   //pinMode(PIN_X0, INPUT_PULLUP);
 
-  motor1.setSpeed(20);  // 10 rpm   
-  motor2.setSpeed(20);  // 10 rpm   
+  motor1.setSpeed(100);  // 10 rpm   
+  motor2.setSpeed(100);  // 10 rpm   
 }
 
 void loop() {
 
  // Serial.println("Single coil steps");
 
-  isXEnd = digitalRead(PIN_X0);
+  //isXEnd = digitalRead(PIN_X0);
  Serial.println(isXEnd);
 
-  if (isXEnd) {
-    motor1.step(100, FORWARD, INTERLEAVE); 
+  //if (isXEnd) {
+    motor1.step(1000, FORWARD, INTERLEAVE);
+    motor1.release(); 
     //motor1.step(30, BACKWARD, INTERLEAVE); 
   
-    motor2.step(100, FORWARD, SINGLE); 
-    motor2.step(30, BACKWARD, SINGLE);
-  }
+    motor2.step(1000, FORWARD, INTERLEAVE);
+    motor2.release(); 
+   // motor2.step(300, BACKWARD, SINGLE);
+ // }
    
 /*
   Serial.println("Double coil steps");
