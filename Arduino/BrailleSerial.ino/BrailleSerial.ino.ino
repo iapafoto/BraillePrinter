@@ -17,6 +17,11 @@
 int PIN_X0 = 10; // SER1
 int PIN_SOLENOID = 2;
 
+int WRITE_SPEED = 40;
+int MOVE_SPEED = 100;
+int EMBOSS_DURATION = 40;
+int EMBOSS_DELAY = 10;
+
 int MARGIN_X = 30, MARGIN_Y = 30;
 int MIN_X = 0 + MARGIN_X;
 int MAX_X = 210 - MARGIN_X;
@@ -63,8 +68,8 @@ void setup() {
   
 // Les moteurs  
 #ifdef WITH_MOTORS
-  motor1.setSpeed(30);  // 10 rpm   
-  motor2.setSpeed(30);  // 10 rpm
+  motor1.setSpeed(WRITE_SPEED);  // 10 rpm   
+  motor2.setSpeed(WRITE_SPEED);  // 10 rpm
 #endif
 
 // TODO at end
@@ -85,11 +90,11 @@ void motorY(double st_mm) {
 
 void moveXToStart() {
 #ifdef WITH_MOTORS
-    motor1.setSpeed(100);
+    motor1.setSpeed(MOVE_SPEED);
     while (digitalRead(PIN_X0)) {
       motorX(-1);
     }
-    motor1.setSpeed(30);
+    motor1.setSpeed(WRITE_SPEED);
 #endif   
     pxLast = 0;
     x0 = MARGIN_X;
@@ -127,9 +132,9 @@ void moveTo(double chx, double chy) {
 void embosse() {
   #ifdef WITH_SOLENOIDE
      digitalWrite(PIN_SOLENOID, HIGH);       
-     delay(40);
+     delay(EMBOSS_DURATION);
      digitalWrite(PIN_SOLENOID, LOW);
-     delay(40); 
+     delay(EMBOSS_DELAY); 
   #endif // WITH_SOLENOIDE
 }
 
@@ -200,7 +205,8 @@ void loop() {
         pxLast+=40;
         x0 += 40;
      } else if (data == 'B') {
-        moveXToStart();
+        nextLine();
+       //B moveXToStart();
  #ifdef WITH_MOTORS
         motor1.release();
         motor2.release();

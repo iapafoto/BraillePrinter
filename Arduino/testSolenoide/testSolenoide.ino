@@ -1,9 +1,9 @@
 
-int pinSolenoid = 2;
+int PIN_SOLENOID = 2;
 
 void setup() {
 
-  pinMode(pinSolenoid,OUTPUT);
+  pinMode(PIN_SOLENOID,OUTPUT);
   Serial.begin(19200);
   Serial.println("Ready");
 }
@@ -11,10 +11,9 @@ void setup() {
 void loop() {
 
   for (int i=0; i<8; i++) {
-     digitalWrite(pinSolenoid, HIGH);       
+     digitalWrite(PIN_SOLENOID, HIGH);       
      delay(40);
-     
-     digitalWrite(pinSolenoid, LOW);
+     digitalWrite(PIN_SOLENOID, LOW);
      delay(100); 
   }
   delay(2000);
