@@ -1,6 +1,11 @@
 
 include <nema17.scad>
-include <stepper28BYJ48.scad>
+//include <stepper28BYJ48.scad>
+// https://www.thingiverse.com/thing:26347/#files
+include <Pulley-T5-XL-13_tooth-hd.scad>
+
+//https://www.thingiverse.com/thing:193647
+//include <Nut_Job.scad> TO HEAVY
 
 $fn = 100;
 
@@ -109,7 +114,7 @@ module nema17Fix(withSquare, withFix, withAxis, withBigAxis) {
 module plaque() {
         difference() {   
            //yMotor1 
-            RoundedPolygon([[-50,6], [-20,43+6-20], [20,43+6-20], [48,25], [50,-43+16], [-60,-43+16]], 10);     
+            RoundedPolygon([[-50,6], [-20,43+6-20], [20,43+6-20], [48/*-10+30*/,25], [50/*+30*/,-43+16/*-32*/], [-60,-43+16/*-32*/]], 10);     
             union() {
                 translate([plC_dx-ep/2,yMotor1]) square([ep,50], center = false); 
             }
@@ -343,47 +348,9 @@ module linearBearing() {
 }
 
 
-module assembled() {
-    
-    color([0,1,0]) linear_extrude(height=ep) plaqueA();
-    color([0,1,1]) translate([0,0,ep]) linear_extrude(height=ep) plaqueB();
-    color([0,1,1]) translate([0,0,workWidth+2*ep]) linear_extrude(height=ep) plaqueC();
-    color([0,1,0]) translate([0,0,workWidth+3*ep]) linear_extrude(height=ep) plaqueD();
-
-    color([1,0,0]) translate([plC_dx+ep/2.,yMotor1-21,-42]) rotate(270,[0,1,0]) linear_extrude(height=ep) plaqueE();
-    if (withE2) {
-        color([1,.5,.5]) translate([-plC_dx+ep/2.-ep2,yMotor1-21,workWidth+2*ep-10]) rotate(270,[0,1,0]) linear_extrude(height=ep2) plaqueE2();
-    }
-    color([1,1,0]) translate([-120/2,yGround+ep/2,2*ep]) rotate([90,0,0]) linear_extrude(height=ep) plaqueF();
-    color([1,.5,0]) translate([-120/2,yGround+ep+ep/2,2*ep]) rotate([90,0,0]) linear_extrude(height=ep) plaqueG();
-
-
-    translate([plC_dx+ep/2.,yMotor1,-42.3/2]) rotate([-90,90,90]) stepper();
-
-     if (horizontal) {
-         translate([xAxis1,yMotor1,ep]) cylinder(r=3,h=workWidth+2*ep);
-         translate([-xAxis1,yMotor1,ep]) cylinder(r=3,h=workWidth+2*ep);     
-         color([0,0,1]) translate([0,yMotor1-5-1.5,15]) rotate([90,0,0])           linear_extrude(3) chariotCut();
-         translate([0,yMotor1-6-3,100+15]) rotate([90,0,0]) solenoid();
-     } else {
-        translate([0,yMotor1+xAxis1,ep]) cylinder(r=3,h=workWidth+2*ep);
-        translate([0,yMotor1-xAxis1,ep]) cylinder(r=3,h=workWidth+2*ep);
-        color([0,0,1]) translate([-9,yMotor1,115]) rotate([90,0,90])                linear_extrude(3) chariotCut();
-        translate([-15,yMotor1-6-3+25,100+15]) rotate([90,0,0]) solenoid();
-     }
-     translate([0,yMotor1,100]) linearBearing();
-     
-     
-    translate([xMotor2,yMotor2,ep]) cylinder(r=4,h=workWidth+2*ep);
-
-    translate([xMotor2,yMotor2,workWidth+4*ep-3-25]) cylinder(r=dRaccordAxe58/2.,h=25);
-    translate([xMotor2,yMotor2,workWidth+4*ep]) rotate(180, [1,0,0]) stepper();
-
-}
-
-module exploded() {
-    k=.01;
-    translate([0,0,0-k*40])linear_extrude(height=ep) plaqueA();
+module exploded(k) {
+    //k=.01;
+    translate([0,0,0-k*30]) linear_extrude(height=ep) plaqueA();
     translate([0,0,ep-k*20]) linear_extrude(height=ep) plaqueB();
     translate([0,0,workWidth+2*ep+k*20]) linear_extrude(height=ep) plaqueC();
     translate([0,0,workWidth+3*ep+k*30]) linear_extrude(height=ep) plaqueD();
@@ -399,14 +366,34 @@ module exploded() {
     translate([-120/2,yGround+ep+ep/2-k*20,2*ep]) rotate([90,0,0]) linear_extrude(height=ep) plaqueG();
 
 
-    color([.6,.6,.8]) translate([plC_dx+ep/2.+k*20,yMotor1 +k*50,-42.3/2]) rotate([-90,90,90]) stepper();
+    translate([plC_dx+ep/2.+k*10,yMotor1 +k*50,-42.3/2]) rotate([-90,90,90]) 
+        {
+            color([.6,.6,.8])stepper();
+            color([.8,.6,.4]) {
+                translate([0,0,5+k*20]) scale(.8) pulley();
+                translate([-(workWidth+4*ep+33),0,5+k*20]) scale(.8) pulley();
+            }
+        }
 
 
      color([.8,.6,.4]) translate([0,yMotor1+xAxis1,ep]) cylinder(r=3,h=workWidth+2*ep);
      color([.8,.6,.4]) translate([0,yMotor1-xAxis1,ep]) cylinder(r=3,h=workWidth+2*ep);
     
-     translate([-9-k*20,yMotor1+k*30,115]) rotate([90,0,90])                linear_extrude(3) chariotCut();
+     translate([-9-k*20,yMotor1+k*30,115]) rotate([90,0,90]) linear_extrude(3) chariotCut();
     
+     color([.8,.6,.4]) translate([-9-k*10,yMotor1+k*30,115]) 
+        difference() {
+            union() {
+                translate([0,xAxis1,-10]) cylinder(r=4,h=6, center=true);
+                translate([0,xAxis1,10]) cylinder(r=4,h=6, center=true);
+                translate([0,-xAxis1,0]) cylinder(r=4,h=6, center=true);
+            }
+            union () {
+                translate([0,xAxis1,10]) cylinder(r=3,h=100, center=true);
+                translate([0,-xAxis1,0]) cylinder(r=3,h=100, center=true);
+            }
+        }
+        
      color([.6,.6,.8]) translate([-15-k*40,yMotor1-6-3+25+k*30,100+15]) rotate([90,0,0]) solenoid();
 
    //  translate([0,yMotor1,100]) linearBearing();
@@ -414,12 +401,20 @@ module exploded() {
      
     color([.8,.6,.4]) translate([xMotor2,yMotor2,ep]) cylinder(r=4,h=workWidth+2*ep);
 
-    color([.8,.6,.4]) translate([xMotor2,yMotor2,workWidth+4*ep-3-25+k*60]) 
+    color([.8,.6,.4]) translate([xMotor2,yMotor2,workWidth+4*ep-3-25+k*57]) 
         difference() {
             cylinder(r=dRaccordAxe58/2.,h=25);
             cylinder(r=8/2.,h=26);
         }
-    color([.6,.6,.8]) translate([xMotor2,yMotor2,workWidth+4*ep+k*90]) rotate(180, [1,0,0]) stepper();
+        
+   color([.8,.6,.4]) translate([xMotor2,yMotor2,ep-k*10]) 
+        difference() {
+            cylinder(r=AXE_2_END,h=6);
+            cylinder(r=4.,h=8);
+        }
+        
+    color([.6,.6,.8]) translate([xMotor2,yMotor2,workWidth+4*ep+k*78]) rotate(180, [1,0,0]) stepper();
+        
 
 }
 
@@ -447,11 +442,16 @@ module cut3mm() {
 }
 
 
-rotate(90,[1,0,0]) rotate(90,[0,1,0]) exploded();
+rotate(90,[1,0,0]) rotate(90,[0,1,0]) exploded(1.5);
 
+//hex_screw(thread_outer_diameter,thread_step,step_shape_degrees,thread_length,resolution,countersink,head_diameter,head_height,non_thread_length,non_thread_diameter);
 
-//linear_extrude(3) cut3mm();
-//linear_extrude(6) cut6mm();
+//color([1,.5,.5]) translate([workWidth/2+2*ep-35,yMotor1,0]) cube([70,50,50], center=false);
+
+//linear_extrude(3)
+//    cut3mm();
+//linear_extrude(6) 
+//    cut6mm();
 
 //nema17(false, true, true, false);
 
