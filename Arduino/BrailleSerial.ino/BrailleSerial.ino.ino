@@ -1,62 +1,74 @@
-#define WITH_MOTORS
-#define WITH_SOLENOIDE
-#define WITH_X0_SWITCH
+// Braille Authority of North America][bana-size]. 
+// http://www.brailleauthority.org/sizespacingofbraille/index.html
+// in mm
+double ch_scale = 2.34; // distance between dots on chars
+double ONE_LINE_Y = 10;  // Size of one line
+double ONE_CHAR_X = 6.2; // Size of One char carret
 
-#define DEBUG
-
-#ifdef WITH_MOTORS
-  #include <AFMotor.h>
-#endif
-// Connect a stepper motor with 48 steps per revolution (7.5 degree)
-// to motor port #2 (M3 and M4)
-#ifdef WITH_MOTORS
-  AF_Stepper motor1(200, 1);
-  AF_Stepper motor2(200, 2);
-#endif
-
-int PIN_X0 = 10; // SER1
-int PIN_SOLENOID = 2;
-
-int WRITE_SPEED = 40;
-int MOVE_SPEED = 100;
-int EMBOSS_DURATION = 40;
-int EMBOSS_DELAY = 10;
-
+// Page configuration (A4) -------
 int MARGIN_X = 30, MARGIN_Y = 30;
 int MIN_X = 0 + MARGIN_X;
 int MAX_X = 210 - MARGIN_X;
 int MIN_Y = 0 + MARGIN_Y;
 int MAX_Y = 297 - MARGIN_Y;
 
+// Debug -------------------------- 
+#define WITH_MOTORS
+#define WITH_SOLENOIDE
+#define WITH_X0_SWITCH
+#define DEBUG
+// --------------------------------
 
-// POSITION top right of current char
 
-double x0=2*MARGIN_X, y0=2*MARGIN_Y;
-double pxLast=x0, pyLast=y0;
 
-double ch_scale = 3; // distance between dots on chars
+// Arduino Pins ----------------------------
+int PIN_X0 = 10; // SER1 End of course on X axis
+int PIN_SOLENOID = 2; // Command of solenoid
+int PIN_LED = 13; //pin number LED is connected to
 
+// Motors ----------------------------------
 double MOTOR_SCALE_X = 10; // step to mm 
 double MOTOR_SCALE_Y = 8; // step to mm
-double ONE_LINE_Y = ch_scale * 4;  // Size of one line
-double ONE_CHAR_X = ch_scale * 3.2;  // Size of One char
+#define MOTOR_STEP_MODE INTERLEAVE
+
+// Speed -----------------------------------
+int WRITE_SPEED = 40;
+int MOVE_SPEED = 100;
+int EMBOSS_DURATION = 40;
+int EMBOSS_DELAY = 10;
+
+
+// ------------------------------------------
+
+#ifdef WITH_MOTORS
+  #include <AFMotor.h>
+#endif
 
 #define BACK -1
 #define FORW 1
 
 
+// Connect a stepper motor 
+#ifdef WITH_MOTORS
+  AF_Stepper motor1(200, 1);
+  AF_Stepper motor2(200, 2);
+#endif
+
+// POSITION top right of current char
+double x0 = MARGIN_X, 
+       y0 = MARGIN_Y;
+double pxLast = x0, pyLast = y0;
+
 int isXEnd = 0; // indicate if X is end of course
 char data; //variable to store incoming data from JAVA 
-int LEDpin = 13; //pin number LED is connected to
 boolean brailleOn = false;
-
 
 int brailleOrder[] = { 1,2,3,7,8,6,5,4 };
 //int brailleOrder[] = { 0,1,2,6,7,5,4,3 };
 //int brailleOrderInv[] = { 3,4,5,7,6,2,1,0 };
 
 void setup() {
-  pinMode(LEDpin, OUTPUT);
+  pinMode(PIN_LED, OUTPUT);
   
   Serial.begin(9600);
   Serial.setTimeout(50);
@@ -77,14 +89,16 @@ void setup() {
 //motor2.release();
 }
 
+
 void motorX(double st_mm) {
 #ifdef WITH_MOTORS
-  motor1.step(abs(st_mm)*MOTOR_SCALE_X, st_mm>=0?FORWARD:BACKWARD, INTERLEAVE);
+  motor1.step(abs(st_mm)*MOTOR_SCALE_X, st_mm>=0?FORWARD:BACKWARD, MOTOR_STEP_MODE);
 #endif
 }
+
 void motorY(double st_mm) {
 #ifdef WITH_MOTORS
-  motor2.step(abs(st_mm)*MOTOR_SCALE_Y, st_mm>=0?FORWARD:BACKWARD, INTERLEAVE);
+  motor2.step(abs(st_mm)*MOTOR_SCALE_Y, st_mm>=0?FORWARD:BACKWARD, MOTOR_STEP_MODE);
 #endif
 }
 
@@ -106,7 +120,7 @@ void nextLine() {
     motorY(ONE_LINE_Y);
     x0 = MARGIN_X;
     y0 += ONE_LINE_Y;
-  pyLast += ONE_LINE_Y;    
+    pyLast += ONE_LINE_Y;    
 }
 
 void moveTo(double chx, double chy) {
@@ -178,8 +192,8 @@ void loop() {
   }
   */
    
-    data = Serial.read();
-    Serial.print(data);
+      data = Serial.read();
+ //     Serial.print(data);
          
 // TODO voir si pas plus simple avec
 // String command = Serial.readString();
@@ -216,15 +230,15 @@ void loop() {
         //x0 -= 40;
      } else {
 
-      if (brailleOn) {
-        drawBrailleChar(data);
-        x0 += ONE_CHAR_X;
-      } else {
+        if (brailleOn) {
+          drawBrailleChar(data);
+          x0 += ONE_CHAR_X;
+        } else {
 
       
-      }
+        }
      
-     }
+      }
   } else {
      // Keep peacefull
      #ifdef WITH_MOTORS
