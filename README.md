@@ -5,6 +5,7 @@ Plotter Braille
 - Java: Send braille File (unicode to Arduino)
 
 ![Alt text](https://github.com/iapafoto/BraillePrinter/blob/master/Media/cut6mm.png)
+![Alt text](https://github.com/iapafoto/BraillePrinter/blob/master/Media/exploded.jpg)
 
 # Real life
 
