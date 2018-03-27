@@ -1,10 +1,16 @@
-# BraillePrinter (Beta)
+# BraillePrinter (Beta - work in progress)
 Plotter Braille
-- OpenScad: Laser cut design
-- Arduino: Convert unicode Braille to move)
-- Java: Send braille File (unicode to Arduino)
+- OpenScad: Laser cut design (https://www.thingiverse.com/thing:2841496) - In progress
+- Arduino: Convert unicode Braille to move) - In progress
+- Java: Send braille File (unicode to Arduino) - In progress
+- ... maybe a "Generic/Text Only" support to be recognized at a classical printer on Windows systems - Futur
+
+# Design
+
+https://www.thingiverse.com/thing:2841496
 
 ![Alt text](https://github.com/iapafoto/BraillePrinter/blob/master/Media/cut6mm.png)
+![Alt text](https://github.com/iapafoto/BraillePrinter/blob/master/Media/exploded.jpg)
 
 # Real life
 
@@ -12,7 +18,7 @@ Plotter Braille
 
 # Beta In action (Video)
 
-https://www.youtube.com/watch?v=OPMQcMbPuBo
+https://www.youtube.com/watch?v=7_j7jOP_bls
 
 # Credits
 Serial communication Java/Arduino is powered by jSerialComm
