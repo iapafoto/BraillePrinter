@@ -18,7 +18,7 @@ https://www.thingiverse.com/thing:2841496
 
 # Beta In action (Video)
 
-https://www.youtube.com/watch?v=OPMQcMbPuBo
+https://www.youtube.com/watch?v=7_j7jOP_bls
 
 # Credits
 Serial communication Java/Arduino is powered by jSerialComm
