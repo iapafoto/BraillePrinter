@@ -1,4 +1,4 @@
-# BraillePrinter (Beta)
+# BraillePrinter (Beta - work in progress)
 Plotter Braille
 - OpenScad: Laser cut design
 - Arduino: Convert unicode Braille to move)
