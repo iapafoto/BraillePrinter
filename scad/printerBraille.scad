@@ -185,7 +185,7 @@ module plaqueC() {
         union() {
             translate([xMotor2,yMotor2]) nema17Fix(false, true, true, false);
             // Passage du raccort 5mm vers 8mm
-            translate([xMotor2,yMotor2]) circle(dRaccordAxe58/2+2);
+            translate([xMotor2,yMotor2]) circle(dRaccordAxe58/2+8.1);
             // Fixation de la petite plaque en bout de courroie
             if (withE2) {
                 translate([-plC_dx-ep/2,yMotor1]) square([ep2,50], center = false); 
@@ -275,6 +275,20 @@ module plaqueG() {
     }
 }
 
+module plaqueH() {
+    difference() { 
+        union() {
+            translate([-20,0]) rounded_square(150, workWidth, 10, center = false); 
+            translate([0,-ep]) rounded_square(40,workWidth+2*ep, 3, center = false); 
+            translate([80,-ep]) rounded_square(30,workWidth+2*ep, 3, center = false); 
+        }
+        union() {
+            translate([4, 2]) square([27,207], center = false); 
+            translate([40, ep]) rounded_square(10,workWidth-2*ep, 3, center = false); 
+        }
+    }
+}
+
 module chariotCut() {
     difference() { 
         rounded_square(22+2*xAxis1,30,3, center = true);
@@ -348,7 +362,7 @@ module linearBearing() {
 }
 
 
-module exploded(k) {
+module exploded(k, withFurnitures) {
     //k=.01;
     translate([0,0,0-k*30]) linear_extrude(height=ep) plaqueA();
     translate([0,0,ep-k*20]) linear_extrude(height=ep) plaqueB();
@@ -364,10 +378,11 @@ module exploded(k) {
     translate([-120/2,yGround+ep/2-k*40,2*ep]) rotate([90,0,0]) linear_extrude(height=ep) plaqueF();
     
     translate([-120/2,yGround+ep+ep/2-k*20,2*ep]) rotate([90,0,0]) linear_extrude(height=ep) plaqueG();
+    
+    translate([-9-k*20,yMotor1+k*30,115]) rotate([90,0,90]) linear_extrude(3) chariotCut();
 
-
-    translate([plC_dx+ep/2.+k*10,yMotor1 +k*50,-42.3/2]) rotate([-90,90,90]) 
-        {
+    if (withFurnitures) {
+        translate([plC_dx+ep/2.+k*10,yMotor1 +k*50,-42.3/2]) rotate([-90,90,90]) {
             color([.6,.6,.8])stepper();
             color([.8,.6,.4]) {
                 translate([0,0,5+k*20]) scale(.8) pulley();
@@ -376,10 +391,9 @@ module exploded(k) {
         }
 
 
-     color([.8,.6,.4]) translate([0,yMotor1+xAxis1,ep]) cylinder(r=3,h=workWidth+2*ep);
-     color([.8,.6,.4]) translate([0,yMotor1-xAxis1,ep]) cylinder(r=3,h=workWidth+2*ep);
+        color([.8,.6,.4]) translate([0,yMotor1+xAxis1,ep]) cylinder(r=3,h=workWidth+2*ep);
+        color([.8,.6,.4]) translate([0,yMotor1-xAxis1,ep]) cylinder(r=3,h=workWidth+2*ep);
     
-     translate([-9-k*20,yMotor1+k*30,115]) rotate([90,0,90]) linear_extrude(3) chariotCut();
     
      color([.8,.6,.4]) translate([-9-k*10,yMotor1+k*30,115]) 
         difference() {
@@ -414,7 +428,7 @@ module exploded(k) {
         }
         
     color([.6,.6,.8]) translate([xMotor2,yMotor2,workWidth+4*ep+k*78]) rotate(180, [1,0,0]) stepper();
-        
+    }    
 
 }
 
@@ -442,11 +456,13 @@ module cut3mm() {
 }
 
 
-rotate(90,[1,0,0]) rotate(90,[0,1,0]) exploded(1.5);
+rotate(90,[1,0,0]) rotate(90,[0,1,0]) exploded(.05, false);
+
+color([1,.5,.5]) translate([workWidth+2*ep-68,yMotor1,0]) cube([68,53,38], center=false);
+
 
 //hex_screw(thread_outer_diameter,thread_step,step_shape_degrees,thread_length,resolution,countersink,head_diameter,head_height,non_thread_length,non_thread_diameter);
 
-//color([1,.5,.5]) translate([workWidth/2+2*ep-35,yMotor1,0]) cube([70,50,50], center=false);
 
 //linear_extrude(3)
 //    cut3mm();
