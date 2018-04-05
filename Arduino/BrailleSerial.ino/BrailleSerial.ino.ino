@@ -2,7 +2,7 @@
 // http://www.brailleauthority.org/sizespacingofbraille/index.html
 // in mm
 double ch_scale = 2.34; // distance between dots on chars
-double ONE_LINE_Y = 10;  // Size of one line
+double ONE_LINE_Y = 10; //10;  // Size of one line
 double ONE_CHAR_X = 6.2; // Size of One char carret
 
 // Page configuration (A4) -------
@@ -32,10 +32,10 @@ double MOTOR_SCALE_Y = 8; // step to mm
 #define MOTOR_STEP_MODE INTERLEAVE
 
 // Speed -----------------------------------
-int WRITE_SPEED = 40;
+int WRITE_SPEED = 35;
 int MOVE_SPEED = 100;
-int EMBOSS_DURATION = 40;
-int EMBOSS_DELAY = 10;
+int EMBOSS_DURATION = 50;
+int EMBOSS_DELAY = 20;
 
 
 // ------------------------------------------
@@ -50,8 +50,8 @@ int EMBOSS_DELAY = 10;
 
 // Connect a stepper motor 
 #ifdef WITH_MOTORS
-  AF_Stepper motor1(200, 1);
-  AF_Stepper motor2(200, 2);
+  AF_Stepper motor1(200, 2);
+  AF_Stepper motor2(200, 1);
 #endif
 
 // POSITION top right of current char
