@@ -5,12 +5,21 @@ double ch_scale = 2.34; // distance between dots on chars
 double ONE_LINE_Y = 10; //10;  // Size of one line
 double ONE_CHAR_X = 6.2; // Size of One char carret
 
+
+// Speed -----------------------------------
+int WRITE_SPEED = 35;
+int MOVE_SPEED = 100;
+int EMBOSS_DURATION = 80; // 50
+int EMBOSS_DELAY = 50; // 20
+
 // Page configuration (A4) -------
+int PAGE_W = 210;
+int PAGE_H = 297;
 int MARGIN_X = 30, MARGIN_Y = 30;
 int MIN_X = 0 + MARGIN_X;
-int MAX_X = 210 - MARGIN_X;
+int MAX_X = PAGE_W - MARGIN_X;
 int MIN_Y = 0 + MARGIN_Y;
-int MAX_Y = 297 - MARGIN_Y;
+int MAX_Y = PAGE_H - MARGIN_Y;
 
 
 // Debug -------------------------- 
@@ -22,8 +31,6 @@ int MAX_Y = 297 - MARGIN_Y;
 // --------------------------------
 
 
-char fullLine[34];
-
 // Arduino Pins ----------------------------
 int PIN_X0 = 10; // SER1 End of course on X axis
 int PIN_SOLENOID = 2; // Command of solenoid
@@ -33,12 +40,6 @@ int PIN_LED = 13; //pin number LED is connected to
 double MOTOR_SCALE_X = 10; // step to mm 
 double MOTOR_SCALE_Y = 8; // step to mm
 #define MOTOR_STEP_MODE INTERLEAVE
-
-// Speed -----------------------------------
-int WRITE_SPEED = 35;
-int MOVE_SPEED = 100;
-int EMBOSS_DURATION = 50;
-int EMBOSS_DELAY = 20;
 
 
 //String tabAscii = " A1B'K2L@CIF/MSP\"E3H9O6R^DJG>NTQ,*5<-U8V.%[$+X!&;:4\\0Z7(_?W]#Y)=";
@@ -102,6 +103,7 @@ void setup() {
 
 void motorX(double st_mm) {
 #ifdef WITH_MOTORS
+  st_mm = -st_mm;
   motor1.step(abs(st_mm)*MOTOR_SCALE_X, st_mm>=0?FORWARD:BACKWARD, MOTOR_STEP_MODE);
 #endif
 }
@@ -124,8 +126,28 @@ void moveXToStart() {
     x0 = MARGIN_X;
 }
 
+void moveXToEnd() {
+#ifdef WITH_MOTORS
+    motor1.setSpeed(MOVE_SPEED);
+
+    // En attendant d'avoir un capteur de ce coté, on va vers le capteur tout a la fin
+    while (digitalRead(PIN_X0)) {
+      motorX(1);
+    }
+    // et retour en debut de ligne a la meme vitesse
+    //pxLast = PAGE_W;
+    motorX(PAGE_W-MARGIN_X);
+    pxLast = MARGIN_X;
+    
+    // Retour a la vitesse d'ecriture classique
+    motor1.setSpeed(WRITE_SPEED);
+#endif   
+    x0 = MARGIN_X;
+}
+
 void nextLine() {
-    moveXToStart();
+    //moveXToStart();
+    //moveXToEnd();
     motorY(ONE_LINE_Y);
     x0 = MARGIN_X;
     y0 += ONE_LINE_Y;
@@ -148,7 +170,7 @@ void moveTo(double chx, double chy) {
         // M2 from pyLast to y
         dy = y-pyLast;
         motorY(dy); 
-       pyLast = y;
+        pyLast = y;
     }
 }
 
@@ -231,6 +253,16 @@ void loop() {
       // Retour a la ligne
      
      } else if (data == '{') {
+        // Init position
+        #ifdef DEBUG
+          Serial.println("Init position");
+        #endif
+        moveXToEnd();
+        
+        #ifdef DEBUG
+          Serial.println("Braille On");
+        #endif
+
         #ifdef DEBUG
           Serial.println("Braille On");
         #endif
