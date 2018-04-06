@@ -366,6 +366,11 @@ public class BraillePrinter {
         // TODO code application logic here
         initAsciiBrailleConverter();
 
+        String fullAsciiToUnicode6_3 = "";
+        for (int i=0; i<fullAsciiToUnicode6_2.length(); i++) {
+            Character unicode = fullAsciiToUnicode6_2.charAt(i);
+            fullAsciiToUnicode6_3 += (unicode-EMPTY) + ",";
+        }
         String file = "C:\\Users\\durands\\Desktop\\texte-txt_nat.txt";
         String txt = readFile(file);
         

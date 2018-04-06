@@ -12,14 +12,17 @@ int MAX_X = 210 - MARGIN_X;
 int MIN_Y = 0 + MARGIN_Y;
 int MAX_Y = 297 - MARGIN_Y;
 
+
 // Debug -------------------------- 
 #define WITH_MOTORS
 #define WITH_SOLENOIDE
 #define WITH_X0_SWITCH
 #define DEBUG
+
 // --------------------------------
 
 
+char fullLine[34];
 
 // Arduino Pins ----------------------------
 int PIN_X0 = 10; // SER1 End of course on X axis
@@ -37,6 +40,13 @@ int MOVE_SPEED = 100;
 int EMBOSS_DURATION = 50;
 int EMBOSS_DELAY = 20;
 
+
+//String tabAscii = " A1B'K2L@CIF/MSP\"E3H9O6R^DJG>NTQ,*5<-U8V.%[$+X!&;:4\\0Z7(_?W]#Y)=";
+//String tabBraille = "⠀⠁⠂⠃⠄⠅⠆⠇⠈⠉⠊⠋⠌⠍⠎⠏⠐⠑⠒⠓⠔⠕⠖⠗⠘⠙⠚⠛⠜⠝⠞⠟⠠⠡⠢⠣⠤⠥⠦⠧⠨⠩⠪⠫⠬⠭⠮⠯⠰⠱⠲⠳⠴⠵⠶⠷⠸⠹⠺⠻⠼⠽⠾⠿";
+
+//String fullAsciiToUnicode6_1 = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`ABCDEFGHIJKLMNOPQRSTUVWXYZ{|}~";
+//String fullAsciiToUnicode6_2 = "⠀⠮⠐⠼⠫⠩⠯⠄⠷⠾⠡⠬⠠⠤⠨⠌⠴⠂⠆⠒⠲⠢⠖⠶⠦⠔⠱⠰⠣⠿⠜⠹⠈⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵⠪⠳⠻⠘⠸⠀⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵⠀⠀⠀⠀⠀";
+int fullAsciiToBraille[] = {0,46,16,60,43,41,47,4,55,62,33,44,32,36,40,12,52,2,6,18 ,50,34,22,54,38,20,49,48,35,63, 28,57,8, 1, 3, 9,25,17,11,27,19,10,26,5,7,13,29,21,15,31,23,14,30,37,39,58,45,61,53,42,51,59,24,56,0,1,3,9,25,17,11,27,19,10,26,5,7,13,29,21,15,31,23,14,30,37,39,58,45,61,53,0,0,0,0,0};
 
 // ------------------------------------------
 
@@ -114,7 +124,6 @@ void moveXToStart() {
     x0 = MARGIN_X;
 }
 
-
 void nextLine() {
     moveXToStart();
     motorY(ONE_LINE_Y);
@@ -153,7 +162,7 @@ void embosse() {
 }
 
 // bch = (unicode-0x2800);
-void drawBrailleChar(char bch) {
+void drawBrailleChar(int bch) {
 #ifdef DEBUG
     Serial.print("BCH:");
     Serial.println(bch);
@@ -161,7 +170,7 @@ void drawBrailleChar(char bch) {
     int id;
     for (int i=0; i<8; i++) {
        id = brailleOrder[i];
-       if ((bch & (1<<id)) != 0) {
+       if ((bch & (1<<(id-1))) != 0) {
           moveTo(id<7?(id-1)/3:id-7, id<7?((id-1)%3):3);
           embosse();
 #ifdef DEBUG
@@ -175,6 +184,26 @@ void drawBrailleChar(char bch) {
 #endif          
        }
     }
+}
+
+
+
+/**
+ * Methode pour convertir un carctere Ascii en braille
+ */
+int convertToBraille(char ascii) {
+  int id = ascii-32;
+  // Petit blindage
+  if (id <0 || id >= 98) {
+    id = 0;
+  }
+  Serial.println("value at");
+  Serial.println(id);
+  Serial.println(fullAsciiToBraille[id]);
+  
+  int braille = fullAsciiToBraille[id];
+ // Serial.println(unicode);
+  return braille;
 }
 
 
@@ -213,12 +242,12 @@ void loop() {
         #endif
           brailleOn = false;
      
-     } else if (data == 'A') {
+    // } else if (data == 'A') {
         //moveXToStart();
-        motorX(40);
-        pxLast+=40;
-        x0 += 40;
-     } else if (data == 'B') {
+       // motorX(40);
+       // pxLast+=40;
+       // x0 += 40;
+     } else if (data == '#') {
         nextLine();
        //B moveXToStart();
  #ifdef WITH_MOTORS
@@ -231,8 +260,21 @@ void loop() {
      } else {
 
         if (brailleOn) {
-          drawBrailleChar(data);
+          if (data < '~') {
+            Serial.print("---------------------");
+            Serial.println(data);
+           // Serial.println((int)data);
+            data = convertToBraille(data); // ascii char to unicode
+            //Serial.print("braille: ");
+            //Serial.println(data, HEX);
+            
+            drawBrailleChar(data);
+          }else {
+          
+            drawBrailleChar((data-0x2800));
+          }
           x0 += ONE_CHAR_X;
+          
         } else {
 
       
