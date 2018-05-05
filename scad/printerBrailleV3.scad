@@ -340,7 +340,10 @@ module plaqueG() {
         }
         union() {
             translate([4, 2]) square([27,207], center = false); 
-            translate([40, ep]) rounded_square(10,workWidth-2*ep, 3, center = false); 
+        // Sans le chariot reglable
+        //    translate([40, ep]) rounded_square(10,workWidth-2*ep, 3, center = false); 
+        // Avec le chariot reglable
+            translate([40-ep2, ep]) rounded_square(10,workWidth-2*ep, 3, center = false); 
         }
     }
 }
@@ -440,6 +443,35 @@ module chariotCut() {
     }
 }
 
+module chariotCutReglable() {
+    difference() {
+        union() {
+            rounded_square(22+2*xAxis1,30,3, center = true);
+            translate([-25,0]) rounded_square(80,20,3., true);
+        }
+        union() {
+            translate([-3.5,0]) rounded_square(35,8,1.2, true);
+            
+            translate([0,11]) rounded_square(16,2.5,1.2, true);
+            translate([0,-11]) rounded_square(16,2.5,1.2, true);
+            
+                translate([-xAxis1-5,-10]) rounded_square(2.5,5,1., true);
+                translate([-xAxis1+5,-10]) rounded_square(2.5,5,1., true);
+                
+                translate([-xAxis1-5,+10]) rounded_square(2.5,5,1., true);
+                translate([-xAxis1+5,+10]) rounded_square(2.5,5,1., true);                        
+             translate([xAxis1-5,0]) rounded_square(2.5,5,1., true);
+             translate([xAxis1+5,0]) rounded_square(2.5,5,1., true); 
+            translate([-42,0]) rounded_square(35,2.5,1., true);
+        }
+    }
+    
+    difference() {
+        translate([-110,0]) rounded_square(80,20,6., true);
+        translate([-110,0]) rounded_square(70,2.5,1., true);
+    }
+
+}
 module chariotCut2() {
     difference() { 
         rounded_square(15+28,30, 3, center = true);   
@@ -645,7 +677,7 @@ module cut3mm() {
 }
 
 
-rotate(90,[1,0,0]) rotate(90/*$t*360*/,[0,1,0]) translate([0,0,-workWidth/2]) exploded(0.*(.5+.5*cos(360*$t))*1.501, true);
+//rotate(90,[1,0,0]) rotate(90/*$t*360*/,[0,1,0]) translate([0,0,-workWidth/2]) exploded(0.*(.5+.5*cos(360*$t))*1.501, true);
 
 //plaqueH();
 
@@ -654,7 +686,10 @@ rotate(90,[1,0,0]) rotate(90/*$t*360*/,[0,1,0]) translate([0,0,-workWidth/2]) ex
 //linear_extrude(6) 
   //  cut6mm();
 
+plaqueG();
 //linear_extrude(6) plaqueC();
 //nema17(false, true, true, false);
 //plaqueH3();
+//chariotCutReglable();
+//translate([50,18]) rotate(90) rounded_square(10,workWidth-2*ep, 3, center = false); 
 

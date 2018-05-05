@@ -1,25 +1,30 @@
 // Braille Authority of North America][bana-size]. 
 // http://www.brailleauthority.org/sizespacingofbraille/index.html
 // in mm
-double ch_scale = 2.34; // distance between dots on chars
-double ONE_LINE_Y = 10; //10;  // Size of one line
-double ONE_CHAR_X = 6.2; // Size of One char carret
+double ch_scale = 2.5; //2.34; // distance between dots on chars
+double ONE_LINE_Y = 11; //10; //10;  // Size of one line
+double ONE_CHAR_X = 6.5; //6.5; //6.2; // Size of One char carret
 
 
 // Speed -----------------------------------
-int WRITE_SPEED = 35;
+int WRITE_SPEED = 30;
 int MOVE_SPEED = 100;
-int EMBOSS_DURATION = 80; // 50
-int EMBOSS_DELAY = 50; // 20
+
+int NB_EMBOSS_REP = 3;
+int EMBOSS_DELAY_REP = 50; 
+
+int EMBOSS_DELAY_BEFORE = 20; // delais entre le dernier mouvement et le debut de l'embossage
+int EMBOSS_DURATION = 20;//50; // 50
+int EMBOSS_DELAY_AFTER = 50; // 20
 
 // Page configuration (A4) -------
 int PAGE_W = 210;
 int PAGE_H = 297;
-int MARGIN_X = 30, MARGIN_Y = 30;
-int MIN_X = 0 + MARGIN_X;
-int MAX_X = PAGE_W - MARGIN_X;
-int MIN_Y = 0 + MARGIN_Y;
-int MAX_Y = PAGE_H - MARGIN_Y;
+int MARGIN_X = 40, MARGIN_Y = 30;
+int MIN_X = 0 + MARGIN_X/2;
+int MAX_X = PAGE_W - MARGIN_X/2 ;
+int MIN_Y = 0 + MARGIN_Y/2;
+int MAX_Y = PAGE_H - MARGIN_Y/2;
 
 
 // Debug -------------------------- 
@@ -39,7 +44,7 @@ int PIN_LED = 13; //pin number LED is connected to
 // Motors ----------------------------------
 double MOTOR_SCALE_X = 10; // step to mm 
 double MOTOR_SCALE_Y = 8; // step to mm
-#define MOTOR_STEP_MODE INTERLEAVE
+#define MOTOR_STEP_MODE INTERLEAVE  // MICROSTEP
 
 
 //String tabAscii = " A1B'K2L@CIF/MSP\"E3H9O6R^DJG>NTQ,*5<-U8V.%[$+X!&;:4\\0Z7(_?W]#Y)=";
@@ -136,7 +141,7 @@ void moveXToEnd() {
     }
     // et retour en debut de ligne a la meme vitesse
     //pxLast = PAGE_W;
-    motorX(PAGE_W-MARGIN_X);
+    motorX(-(PAGE_W-MARGIN_X));
     pxLast = MARGIN_X;
     
     // Retour a la vitesse d'ecriture classique
@@ -176,10 +181,14 @@ void moveTo(double chx, double chy) {
 
 void embosse() {
   #ifdef WITH_SOLENOIDE
-     digitalWrite(PIN_SOLENOID, HIGH);       
-     delay(EMBOSS_DURATION);
-     digitalWrite(PIN_SOLENOID, LOW);
-     delay(EMBOSS_DELAY); 
+     delay(EMBOSS_DELAY_BEFORE);
+     for (int i=0; i<NB_EMBOSS_REP; i++) {
+        if (i>0) delay(EMBOSS_DELAY_REP);
+        digitalWrite(PIN_SOLENOID, HIGH);       
+        delay(EMBOSS_DURATION);
+        digitalWrite(PIN_SOLENOID, LOW);
+     }
+     delay(EMBOSS_DELAY_AFTER); 
   #endif // WITH_SOLENOIDE
 }
 
@@ -230,6 +239,11 @@ int convertToBraille(char ascii) {
 
 
 void loop() {
+
+
+// Stream.readBytesUntil(character, buffer, length)
+// http://pwillard.com/?p=249
+
   
   if (Serial.available()>0){ //if data has been written to the Serial stream
 /*
@@ -320,8 +334,45 @@ void loop() {
         motor2.release();
     #endif
   }
-
-  
 }
+
+
+// Adapted from Stream.h
+const int bSize = 32; 
+char Buffer[bSize];  // Serial buffer
+char Command[10];    // Arbitrary Value for command size
+char Data[15];       // ditto for data size
+int ByteCount;
+        
+// protected method to read stream with timeout
+int timedRead(int _timeout) {
+  int c;
+  int _startMillis = millis();
+  do {
+    c = Serial.read();
+    if (c >= 0) return c;
+  } while(millis() - _startMillis < _timeout);
+  return -1;     // -1 indicates timeout
+}
+
+size_t readBytesUntil(char terminator, char *buffer, size_t length){
+  if (length < 1) return 0;
+  size_t index = 0;
+  while (index < length) {
+    int c = timedRead(1000);
+    if (c < 0 || c == terminator) break;
+    *buffer++ = (char)c;
+    index++;
+  }
+  return index; // return number of characters, not including null terminator
+}
+
+String readLine(char terminator){
+  size_t sz = readBytesUntil(terminator, Buffer, bSize);
+  String str(Buffer);
+  return str;
+}
+
+
 
 

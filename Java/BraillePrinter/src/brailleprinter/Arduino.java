@@ -262,8 +262,7 @@ public class Arduino {
         try {
             File fileDir = new File("C:\\Users\\durands\\Desktop\\FabLab\\texte-txt_nat.txt");
 
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(new FileInputStream(fileDir), "UTF8"));
+            BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(fileDir), "UTF8"));
             String str;
             while ((str = in.readLine()) != null) {
 //                System.out.println(str);

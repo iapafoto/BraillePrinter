@@ -359,6 +359,8 @@ public class BraillePrinter {
         return chPages;
     }
 
+    
+     
     /**
      * @param args the command line arguments
      */
@@ -372,8 +374,17 @@ public class BraillePrinter {
             fullAsciiToUnicode6_3 += (unicode-EMPTY) + ",";
         }
 */  
-        String file = "C:\\Users\\durands\\Desktop\\texte-txt_nat.txt";
+        String file = "C:\\Users\\durands\\Desktop\\EngagesFormat-txt_nat.txt";
         String txt = readFile(file);
+        
+        String sTranslated = "";
+        for (char ch : txt.toCharArray()) {
+            if (ch == '\n') {
+                sTranslated += ch;
+            } 
+            int id = fullAsciiToUnicode6_2.indexOf(ch); 
+            sTranslated += (id >= 0) ? fullAsciiToUnicode6_1.charAt(id) : '?';
+        }
         
         int maxCharW = 37, maxCharH = 27;
         
