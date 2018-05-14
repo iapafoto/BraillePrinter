@@ -10,6 +10,7 @@ include <arduino.scad>
 // https://www.thingiverse.com/thing:8000
 include <braille.scad>
 
+
 //https://www.thingiverse.com/thing:193647
 //include <Nut_Job.scad> TO HEAVY
 
@@ -36,6 +37,7 @@ withSteppers = true;
 withStepper28BYJ48 = false;
 // Avec la petite plaque pour soutenir le bout de la courroie
 withE2 = true;
+//IS_INVERSE = true;
 
 ELECTRO_H = 42;
 ELECTRO_W = 59;
@@ -92,7 +94,7 @@ module rounded_square( width, height, radius_corner, center=false ) {
 		}
 }
 
-module nema17Fix(withSquare, withFix, withAxis, withBigAxis) {
+module nema17Fix(withSquare, withFixTop, withFixBottom, withAxis, withBigAxis) {
     width = 42.3; // mm
     fix = 31;
     rFix = 3/2;
@@ -111,24 +113,20 @@ module nema17Fix(withSquare, withFix, withAxis, withBigAxis) {
         circle(r=rAxis2);
     }
     
-    if (withFix) {
+    if (withFixTop) {
         translate([fix/2,fix/2]) circle(r=rFix);
-        translate([fix/2,-fix/2]) circle(r=rFix);
         translate([-fix/2,fix/2]) circle(r=rFix);
-        translate([-fix/2,-fix/2]) circle(r=rFix);
-        // add fix for 28BYJ48
-        if (withStepper28BYJ48) {
-            translate([-35/2,8]) circle(r=rFix);
-            translate([35/2,8]) circle(r=rFix);
-        }
     }
-    
+    if (withFixBottom) {
+        translate([fix/2,-fix/2]) circle(r=rFix);
+        translate([-fix/2,-fix/2]) circle(r=rFix);
+    }    
+    // add fix for 28BYJ48
+    if (withStepper28BYJ48) {
+        translate([-35/2,8]) circle(r=rFix);
+        translate([35/2,8]) circle(r=rFix);
+    }
 }
-
-
-
-
-
 
 
 module plaque() {
@@ -190,10 +188,10 @@ module plaqueA() {
         plaqueA0();
         
         union() {
-            // interrupteur fin de course X
-            translate([0,yMotor1-xAxis1-8.5]) square([12.6-.5,5.7-1.5],center=true);
             // Passage fil moteur X
             translate([plC_dx-ep/2+40,yMotor1]) square([24+2,20],center=true);
+            // interrupteur fin de course X
+            translate([0,yMotor1-xAxis1-8.5]) square([12.6-.5,5.7-1.5],center=true);
             // Passage fil capteur
             RoundedPolygon([[2,yMotor1-xAxis1-8.5], [14,yMotor1-xAxis1-8.5+12]], 2);
         }
@@ -203,12 +201,12 @@ module plaqueA() {
 module plaqueB() {
     difference() { 
         plaqueB0();
-        // interrupteur fin de course X
-        translate([0,yMotor1-xAxis1-8.5]) square([12.6,5.7],center=true);
         // Passage fil moteur X
         translate([plC_dx-ep/2+30,yMotor1]) square([9+2,16.5+2],center=true);
- // Passage fil capteur
-           RoundedPolygon([[12,yMotor1-xAxis1-8.5+10], [22,yMotor1-xAxis1-8.5+20]], 2);
+        // Passage fil capteur
+        RoundedPolygon([[12,yMotor1-xAxis1-8.5+10], [22,yMotor1-xAxis1-8.5+20]], 2);
+        // interrupteur fin de course X
+        translate([0,yMotor1-xAxis1-8.5]) square([12.6,5.7],center=true);
     }
 }
 
@@ -216,7 +214,7 @@ module plaqueC() {
     difference() { 
         plaqueB0();
         union() {
-            translate([xMotor2,yMotor2]) nema17Fix(false, true, true, false);
+            translate([xMotor2,yMotor2]) nema17Fix(false, true, false, true, false);
             // Passage du raccort 5mm vers 8mm
             translate([xMotor2,yMotor2]) circle(dRaccordAxe58/2+1.2);
             // Fixation de la petite plaque en bout de courroie
@@ -227,9 +225,15 @@ module plaqueC() {
             translate([plC_dx+ep/2.+18.5,ELECTRO_BOTTOM+12]) rounded_square(13+1,12+1, 1, center = true);
             // Alimentation 12v
             translate([plC_dx+ep/2.+18.5,ELECTRO_BOTTOM+36]) circle(6);
-            // Entree fils Moteur Y
+            // Entree fils Moteur Y && Passage fil capteur
           //  translate([plC_dx+3,yMotor2+8]) rounded_square(12,12, 1,center=true);
-            RoundedPolygon([[plC_dx-3,yMotor2+3], [plC_dx+6,yMotor2+12]], 3);;
+            RoundedPolygon([[plC_dx-2,yMotor2+4], [22,yMotor1-xAxis1-8.5+20]], 2);;
+
+            // Passage fil capteur
+         //   RoundedPolygon([[12,yMotor1-xAxis1-8.5+10], [22,yMotor1-xAxis1-8.5+20]], 2);
+            // interrupteur fin de course X
+            translate([0,yMotor1-xAxis1-8.5]) square([12.6,5.7],center=true);
+
         }
     }
 }
@@ -248,12 +252,20 @@ module plaqueD() {
             }
             
             // Fixation moteur Y
-            translate([xMotor2,yMotor2]) nema17Fix(false, true, true, true);    
+            translate([xMotor2,yMotor2]) nema17Fix(false, true, false, true, true);    
             
             // Prise USB + Alimentation 12v
             translate([plC_dx+ep/2.+18.5,ELECTRO_BOTTOM+5+18.5]) rounded_square(14+3,39, 3, center = true);
             // entree fils Moteur Y
-            RoundedPolygon([[plC_dx-6,yMotor2], [plC_dx+3,yMotor2+9]], 3);
+            //RoundedPolygon([[plC_dx-6,yMotor2], [plC_dx+3,yMotor2+9]], 2);
+            // Passage fil capteur
+            //RoundedPolygon([[2,yMotor1-xAxis1-8.5], [14,yMotor1-xAxis1-8.5+12]], 2);
+            // entree fils Moteur Y & Passage fil capteur
+            RoundedPolygon([[2,yMotor1-xAxis1-8.5], [plC_dx+3,yMotor2+9]], 2);
+
+            // interrupteur fin de course X
+            translate([0,yMotor1-xAxis1-8.5]) square([12.6-.5,5.7-1.5],center=true);
+           
         }
     }
 }
@@ -270,7 +282,7 @@ module plaqueE() {
         RoundedPolygon([[x0+42.3-rnd,rnd-11], [x0,rnd], [x0,42.3-rnd], [x0+42.3-rnd,maxY-rnd],[x1-30+2*rnd,maxY-rnd],[x1,32-rnd], [x1,24-rnd], [x1-30+2*rnd,rnd-11]], rnd, center = false);   
         
         union() {
-            translate([21,21]) nema17Fix(false, true, true, true);
+            translate([21,21]) nema17Fix(false, true, true, true, true);
  
             // Les encoches principales        
             translate([42+ep*2+workWidth,-1]) square([ep*2,21]);
@@ -316,10 +328,16 @@ module plaqueF() {
             translate([70,-2*ep]) rounded_square(30,workWidth+4*ep, 3, center = false); 
         }
         union() {
-            translate([20,-ep]) square([10,ep]);
-            translate([70,-ep]) square([10,ep]);
-            translate([20,workWidth]) square([10,ep]);
-            translate([70,workWidth]) square([10,ep]);
+            // encoches pour bloquer les plaques B et C
+            translate([18,-ep]) square([12,ep]);
+            translate([68,-ep]) square([12,ep]);
+            translate([18,workWidth]) square([12,ep]);
+            translate([68,workWidth]) square([12,ep]);
+            // Legers biseaux pour faciiter le montage
+            translate([18,-ep-1.3]) rotate(15) square([10,ep/2]);
+            translate([68,-ep-1.3]) rotate(15) square([10,ep/2]);
+            translate([18,workWidth+4.3]) rotate(-15) square([10,ep/2]);
+            translate([68,workWidth+4.3]) rotate(-15) square([10,ep/2]);
 
 // trou pour les petites roulettes
           translate([18, 7]) rounded_square(10,197,2, center = false);  
@@ -497,19 +515,19 @@ module solenoidMini() {
 }
 
 module solenoid() {
-   l=30;
-   w=15;
-   h=13;
+    l=30;
+    w=15;
+    h=13;
     union() {
-   union() {
-         translate([-w/2,-h/2,0])cube([w,h,l]);
-         translate([0,0,-10]) cylinder(r=2.5, h=55);
-    } 
-   union() {
-         translate([-5,0,l/2-15/2]) rotate([0,90,0]) cylinder(r=2.5, h=15);
-        translate([-5,0,l/2+15/2]) rotate([0,90,0]) cylinder(r=2.5, h=15);    
+        union() {
+             translate([-w/2,-h/2,0])cube([w,h,l]);
+             translate([0,0,-10]) cylinder(r=2.5, h=55);
+        } 
+        union() {
+             translate([-5,0,l/2-15/2]) rotate([0,90,0]) cylinder(r=2.5, h=15);
+            translate([-5,0,l/2+15/2]) rotate([0,90,0]) cylinder(r=2.5, h=15);    
+        }
     }
-}
 }
 
 module linearBearing() {
@@ -555,27 +573,23 @@ module vis() {
 
 module exploded(k, withFurnitures) {
 
-    color([1,0,0]) translate([0,0,0-k*30]) linear_extrude(height=ep) plaqueA();
+ //   color([1,0,0]) translate([0,0,0-k*30]) linear_extrude(height=ep) plaqueA();
     color([0,1,0]) translate([0,0,ep-k*20]) linear_extrude(height=ep) plaqueB();
     color([0,0,1]) translate([0,0,workWidth+2*ep+k*20]) linear_extrude(height=ep) plaqueC();
-    color([1,0,0]) translate([0,0,workWidth+3*ep+k*30]) linear_extrude(height=ep) plaqueD();
-
+/*    color([1,0,0]) translate([0,0,workWidth+3*ep+k*30]) linear_extrude(height=ep) plaqueD();
     translate([plC_dx+ep/2,yMotor1-20+k*50,-42]) rotate(270,[0,1,0]) linear_extrude(height=ep) plaqueE();
-    
     if (withE2) {
      //   translate([-plC_dx+ep/2.-ep2,yMotor1-21,workWidth+2*ep-k*10]) rotate(270,[0,1,0])  linear_extrude(height=ep2) plaqueE2();
         translate([-plC_dx+ep/2.-ep2,yMotor1,workWidth+4*ep+k*40]) rotate(270,[0,1,0])  linear_extrude(height=ep2) plaqueE2();
         
     }
-    
-    translate([-120/2,yGround+ep/2-k*40,2*ep]) rotate([90,0,0]) linear_extrude(height=ep) plaqueF();
-    
+  */      
+    translate([-120/2+10,yGround+ep/2-k*40,2*ep]) rotate([90,0,0]) linear_extrude(height=ep) plaqueF();    
     translate([-120/2,yGround+ep+ep/2-k*20,2*ep]) rotate([90,0,0]) linear_extrude(height=ep) plaqueG();
-
-     
-    translate([plC_dx+ep,ELECTRO_BOTTOM-ep2/2/*yMotor1+3*/, 2*ep+workWidth/2]) rotate([90,0,0]) {
+/*
+    translate([plC_dx+ep,ELECTRO_BOTTOM-ep2/2, 2*ep+workWidth/2]) rotate([90,0,0]) {
         union(){
-            color([.8,.8,.4]) translate([ELECTRO_W/2+k*20,0, /*ELECTRO_H/2*/-k*40]) linear_extrude(height=ep2) plaqueH();
+            color([.8,.8,.4]) translate([ELECTRO_W/2+k*20,0,-k*40]) linear_extrude(height=ep2) plaqueH();
       // le capo du dessus
             color([.8,.8,.4]) translate([ELECTRO_W/2+k*20,0, -ELECTRO_H-ep2-k*60]) linear_extrude(height=ep2) plaqueH2();
         }
@@ -586,10 +600,11 @@ module exploded(k, withFurnitures) {
         } 
 
 
-        color([.8,.8,.4]) translate([-9-k*20,yMotor1+k*30,115]) rotate([90,0,90]) linear_extrude(3) chariotCut();
-    
+ //       color([.8,.8,.4]) translate([-9-k*20,yMotor1+k*30,115]) rotate([90,0,90]) linear_extrude(3) chariotCut();
+    */
 
     if (withFurnitures) {
+      
         translate([plC_dx+ep/2.+k*10,yMotor1 +k*50,-42.3/2]) rotate([-90,90,90]) {
             color([.6,.6,.8])stepper();
             color([.8,.6,.4]) {
@@ -611,7 +626,7 @@ module exploded(k, withFurnitures) {
         color([.8,.6,.4]) translate([0,yMotor1-xAxis1,ep]) cylinder(r=3,h=workWidth+2*ep);
     
     
-         color([.8,.6,.4]) translate([0-k*15,yMotor1+k*30,115]) 
+        color([.8,.6,.4]) translate([0-k*15,yMotor1+k*30,115]) 
             difference() {
                 union() {
                     translate([0,xAxis1,-10]) cylinder(r=4,h=6, center=true);
@@ -650,7 +665,8 @@ module exploded(k, withFurnitures) {
         color([.6,.6,.8]) translate([xMotor2,yMotor2,workWidth+4*ep+k*78]) rotate(180, [1,0,0]) {       stepper();
         }    
         translate([k*20,ELECTRO_BOTTOM+5+k*50,0]) color([1,.5,.5]) electronique();
-    }    
+    }
+  
 
 }
 
@@ -659,7 +675,7 @@ module cut6mm() {
     translate([0,4]) rotate(180) plaqueA();
     translate([126,-6]) plaqueC();
     translate([0,-85]) rotate(180) plaqueB();
-    translate([120,-45]) rotate(90) plaqueD();
+    translate([125,-95]) rotate(0) plaqueD();
     translate([-70,154]) rotate(-90) plaqueF();
     translate([-70,295]) rotate(-90) plaqueG();
     translate([168,347]) rotate(-90) plaqueE();
@@ -667,26 +683,26 @@ module cut6mm() {
 }
 
 module cut3mm() {
-    translate([28,19]) rotate(90) chariotCut();
+    translate([25,-50]) rotate(90) chariotCut();
     if (withE2) {
-        translate([0,-122]) plaqueE2();
+        translate([20,50]) plaqueE2();
     }
     translate([75,0]) plaqueH2();
-    translate([137,0]) plaqueH();
-    translate([190,0]) plaqueH3();    
+    translate([140,0]) plaqueH();
+    translate([193,0]) plaqueH3();    
 }
 
 
-//rotate(90,[1,0,0]) rotate(90/*$t*360*/,[0,1,0]) translate([0,0,-workWidth/2]) exploded(0.*(.5+.5*cos(360*$t))*1.501, true);
+rotate(90,[1,0,0]) rotate(90/*$t*360*/,[0,1,0]) translate([0,0,-workWidth/2]) exploded(0.*(.5+.5*cos(360*$t))*1.501, false);
 
 //plaqueH();
 
 //translate([-60,-270]) linear_extrude(3)  
- //   cut3mm();
+//    cut3mm();
 //linear_extrude(6) 
   //  cut6mm();
 
-plaqueG();
+//plaqueG();
 //linear_extrude(6) plaqueC();
 //nema17(false, true, true, false);
 //plaqueH3();
