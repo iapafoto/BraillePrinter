@@ -15,7 +15,7 @@ https://www.thingiverse.com/thing:2841496
 
 # Real life
 
-![Alt text](https://github.com/iapafoto/BraillePrinter/blob/master/Media/beta.jpg)
+![Alt text](https://raw.githubusercontent.com/iapafoto/BraillePrinter/master/Media/DSC_0298.JPG)
 
 # Beta In action (Video)
 
