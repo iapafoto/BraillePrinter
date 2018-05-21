@@ -586,14 +586,14 @@ module vis() {
 
 module exploded(k, withFurnitures) {
 
-    color([1,0,0]) translate([0,0,0-k*30-30]) linear_extrude(height=ep) plaqueA();
+    color([1,0,0]) translate([0,0,0-k*30]) linear_extrude(height=ep) plaqueA();
     color([0,1,0]) translate([0,0,ep-k*20]) linear_extrude(height=ep) plaqueB();
     color([0,0,1]) translate([0,0,workWidth+2*ep+k*20]) linear_extrude(height=ep) plaqueC();
     color([1,0,0]) translate([0,0,workWidth+3*ep+k*30]) linear_extrude(height=ep) plaqueD();
-  //  translate([plC_dx+ep/2,yMotor1-20+k*50,-42]) rotate(270,[0,1,0]) linear_extrude(height=ep) plaqueE();
+    translate([plC_dx+ep/2,yMotor1-20+k*50,-42]) rotate(270,[0,1,0]) linear_extrude(height=ep) plaqueE();
     if (withE2) {
      //   translate([-plC_dx+ep/2.-ep2,yMotor1-21,workWidth+2*ep-k*10]) rotate(270,[0,1,0])  linear_extrude(height=ep2) plaqueE2();
-  //      translate([-plC_dx+ep/2.-ep2,yMotor1,workWidth+4*ep+k*40]) rotate(270,[0,1,0])  linear_extrude(height=ep2) plaqueE2();
+        translate([-plC_dx+ep/2.-ep2,yMotor1,workWidth+4*ep+k*40]) rotate(270,[0,1,0])  linear_extrude(height=ep2) plaqueE2();
         
     }
         
@@ -604,7 +604,7 @@ module exploded(k, withFurnitures) {
         union(){
             color([.8,.8,.4]) translate([ELECTRO_W/2+k*20,0,-k*40]) linear_extrude(height=ep2) plaqueH();
       // le capo du dessus
-         //   color([.8,.8,.4]) translate([ELECTRO_W/2+k*20,0, -ELECTRO_H-ep2-k*60]) linear_extrude(height=ep2) plaqueH2();
+            color([.8,.8,.4]) translate([ELECTRO_W/2+k*20,0, -ELECTRO_H-ep2-k*60]) linear_extrude(height=ep2) plaqueH2();
         }
     }
         
@@ -618,7 +618,7 @@ module exploded(k, withFurnitures) {
 
     if (withFurnitures) {
         // Stepper 1
-       /*
+       
         translate([plC_dx+ep/2.+k*10,yMotor1 +k*50,-42.3/2]) rotate([-90,90,90]) {
             color([.6,.6,.8])stepper();
             color([.8,.6,.4]) {
@@ -633,9 +633,9 @@ module exploded(k, withFurnitures) {
         // vis et poulie fin de l'axe X    
         translate([plC_dx-23+k*20,yMotor1 +k*50, workWidth+4*ep+DELTA_END_X])  rotate([-90,90,90]) {
             scale(.8) rotate([180,0,0]) pulley();
-            translate([0,0,-5-k*30-20]) scale([1.8,1.8,1.8]) rotate([180,0,0]) vis();
+            translate([0,0,-5-k*20]) scale([1.8,1.8,1.8]) rotate([180,0,0]) vis();
         }
-*/
+
         color([.8,.6,.4]) translate([0,yMotor1+xAxis1,ep]) cylinder(r=3,h=workWidth+2*ep);
         color([.8,.6,.4]) translate([0,yMotor1-xAxis1,ep]) cylinder(r=3,h=workWidth+2*ep);
   
@@ -710,7 +710,7 @@ module cut3mm() {
 }
 
 
-rotate(90,[1,0,0]) rotate(90/*$t*360*/,[0,1,0]) translate([0,0,-workWidth/2]) exploded(0.*(.5+.5*cos(360*$t))*1.501, true);
+rotate(90,[1,0,0]) rotate(90/*$t*360*/,[0,1,0]) translate([0,0,-workWidth/2]) exploded(1.*(.5+.5*cos(360*$t))*1.501, true);
 
 //plaqueH();
 
