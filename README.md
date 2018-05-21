@@ -10,7 +10,7 @@ Plotter Braille
 
 https://www.thingiverse.com/thing:2841496
 
-![Alt text](https://github.com/iapafoto/BraillePrinter/blob/master/Media/cut6mm.png)
+![Alt text](https://raw.githubusercontent.com/iapafoto/BraillePrinter/master/Media/Notice/Cut_6mm.png)
 ![Alt text](https://github.com/iapafoto/BraillePrinter/blob/master/Media/exploded.jpg)
 
 # Real life
