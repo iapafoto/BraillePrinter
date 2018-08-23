@@ -17,8 +17,6 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,24 +28,6 @@ import javax.swing.JFrame;
  */
 public class BraillePrinter {
     
-    static final char EMPTY = (char)0x2800;
-    static final char UNKNOWN = (char)0;
-
-    static final String asciiToBraille6_1 = " A1B'K2L@CIF/MSP\"E3H9O6R^DJG>NTQ,*5<-U8V.%[$+X!&;:4\\0Z7(_?W]#Y)=";
-    static final String asciiToBraille6_2 = "⠀⠁⠂⠃⠄⠅⠆⠇⠈⠉⠊⠋⠌⠍⠎⠏⠐⠑⠒⠓⠔⠕⠖⠗⠘⠙⠚⠛⠜⠝⠞⠟⠠⠡⠢⠣⠤⠥⠦⠧⠨⠩⠪⠫⠬⠭⠮⠯⠰⠱⠲⠳⠴⠵⠶⠷⠸⠹⠺⠻⠼⠽⠾⠿";
-    //String braille8Unicode_2 = " ⠂⠄⠆⠈⠊⠌⠎⠐⠒⠔⠖⠘⠚⠜⠞⠠⠢⠤⠦⠨⠪⠬⠮⠰⠲⠴⠶⠸⠺⠼⠾⡀⡂⡄⡆⡈⡊⡌⡎⡐⡒⡔⡖⡘⡚⡜⡞⡠⡢⡤⡦⡨⡪⡬⡮⡰⡲⡴⡶⡸⡺⡼⡾⢂⢆⢊⢎⢐⢒⢔⢖⢚⢜⢞⢢⢦⢪⢮⢰⢲⢴⢶⢺⢼⢾⣊⣎⣔⣚⣦⣪⣴⣶⣺";
-
-    static final String asciiToBraille8_1 = " !\"#$%&'()*+,-./0123456789;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
-    static final String asciiToBraille8_2 = " ⡜⠠⡸⡖⡒⡞⠈⡮⡼⡂⡘⡢⡈⡐⠘⡨⠄⠌⠤⡤⡄⠬⡬⡌⠨⡠⡆⡾⠸⡲⠐⢂⢆⢒⢲⢢⢖⢶⢦⢔⢴⢊⢎⢚⢺⢪⢞⢾⢮⢜⢼⣊⣎⣴⣚⣺⣪⡔⡦⡶⠰⡰⢐⠂⠆⠒⠲⠢⠖⠶⠦⠔⠴⠊⠎⠚⠺⠪⠞⠾⠮⠜⠼⡊⡎⡴⡚⡺⡪⣔⣦⣶⢰";
-
-    static final String braille8Unicode_1 = " a1b'k2l@cif/msp\"e3h9o6r^djg>ntq,*5<-u8v.%[$+x!&;,4\\0z7(_?w]#y)=ABKL`CIFMSPEHOR~DJGNTQUV{X|ZW}Y";
-    static final String braille8Unicode_2 = " ⠂⠄⠆⠈⠊⠌⠎⠐⠒⠔⠖⠘⠚⠜⠞⠠⠢⠤⠦⠨⠪⠬⠮⠰⠲⠴⠶⠸⠺⠼⠾⡀⡂⡄⡆⡈⡊⡌⡎⡐⡒⡔⡖⡘⡚⡜⡞⡠⡢⡤⡦⡨⡪⡬⡮⡰⡲⡴⡶⡸⡺⡼⡾⢂⢆⢊⢎⢐⢒⢔⢖⢚⢜⢞⢢⢦⢪⢮⢰⢲⢴⢶⢺⢼⢾⣊⣎⣔⣚⣦⣪⣴⣶⣺";
-    
-    
-    // valable de 32 a 32+128 (faire char-32 pour mapper correctement)
-    static final String fullAsciiToUnicode6_1 = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`ABCDEFGHIJKLMNOPQRSTUVWXYZ{|}~";
-    static final String fullAsciiToUnicode6_2 = "⠀⠮⠐⠼⠫⠩⠯⠄⠷⠾⠡⠬⠠⠤⠨⠌⠴⠂⠆⠒⠲⠢⠖⠶⠦⠔⠱⠰⠣⠿⠜⠹⠈⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵⠪⠳⠻⠘⠸⠀⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵⠀⠀⠀⠀⠀";
-
     static final int[] braillePosX = { 0,0,0,1,1,1,0,1 };
     static final int[] braillePosY = { 0,1,2,0,1,2,3,3 };
     static final int[] brailleOrder = { 0,1,2,6,7,5,4,3 };
@@ -79,172 +59,7 @@ public class BraillePrinter {
 // 4  32        3  6
 //64 128        7  8
     
-    static class AsciiBrailleConverter {
-        public static SortedMap<Character, Character> mapAsciiToUnicodeBraille = new TreeMap();
-        public static SortedMap<Character, Character> mapUnicodeBrailleToAscii = new TreeMap();
-        
-        void put(char ascii, int... dots) {
-            char unicode = 0x2800;
-            for(int c : dots) {
-                unicode += 1<<c; 
-            }
-            mapAsciiToUnicodeBraille.put(ascii, unicode);
-            mapUnicodeBrailleToAscii.put(unicode, ascii);
-        }
-        
-        void put(String ascii, String unicode) {
-            for(int i=0; i<ascii.length(); i++) {
-                mapAsciiToUnicodeBraille.put(ascii.charAt(i), unicode.charAt(i));
-                mapUnicodeBrailleToAscii.put(unicode.charAt(i), ascii.charAt(i));
-            }
-        }
-        
-        void printAll() {
-            String ascii = "";
-            String unicode = "";
-            for(char c : mapAsciiToUnicodeBraille.keySet()) {
-                ascii += c;
-            }
-            for(char c : mapAsciiToUnicodeBraille.values()) {
-                unicode += c;
-            }
-            System.out.println(ascii);
-            System.out.println(unicode);
-            
-            ascii = "";
-            unicode = "";
-            for(char c : mapUnicodeBrailleToAscii.keySet()) {
-                ascii += c;
-            }
-            for(char c : mapUnicodeBrailleToAscii.values()) {
-                unicode += c;
-            }
-            
-            System.out.println(ascii);
-            System.out.println(unicode);
-            
-            ascii = "";
-            unicode = "";
-            for(char c=32; c<128;c++) {
-                ascii += c>='a'&&c<='z'?(char)(c-('a'-'A')):c;
-            }
-            for(char c=32; c<128;c++) {
-                
-                Character un = mapAsciiToUnicodeBraille.get(c>='a'&&c<='z'?(char)(c-('a'-'A')):c);
-                unicode += un == null ? EMPTY : un;
-            }
-            
-            System.out.println("Full ascii map");
-            System.out.println(ascii);
-            System.out.println(unicode);
-        }
-    }
-
-
-//AsciiBrailleConverter m = new AsciiBrailleConverter();
-
-    static void initAsciiBrailleConverter() {
-        AsciiBrailleConverter m = new AsciiBrailleConverter();
-        
-        m.put(asciiToBraille6_1, asciiToBraille6_2);
-       /* 
-        m.put('!' , 2,3,4,6);
-	m.put('\"', 5);
-	m.put('#' , 3,4,5,6);
-	m.put('$' , 1,2,4,6);
-	m.put('%' , 1,4,6);
-	m.put('&' , 1,2,3,4,6);
-	m.put('\'' , 3);
-	m.put('(' , 1,2,3,5,6);
-	m.put(')' , 2,3,4,5,6);
-	m.put('*' , 1,6);
-	m.put('+' , 3,4,6);
-	m.put(',' , 6);
-	m.put('-' , 3,6);
-	m.put('.' , 4,6);
-	m.put('/' , 3,4);
-	m.put('0' , 3,5,6);
-	m.put('1' , 2);
-	m.put('2' , 2,3);
-	m.put('3' , 2,5);
-	m.put('4' , 2,5,6);
-	m.put('5' , 2,6);
-	m.put('6' , 2,3,5);
-	m.put('7' , 2,3,5,6);
-	m.put('8' , 2,3,6);
-	m.put('9' , 3,5);
-	m.put(',' , 1,5,6);
-	m.put(';' , 5,6);
-	m.put('<' , 1,2,6);
-	m.put('=' , 1,2,3,4,5,6);
-	m.put('>' , 3,4,5);
-	m.put('?' , 1,4,5,6);
-	m.put('@' , 4);
-	m.put('A' , 1,7);
-	m.put('B' , 1,2,7);
-	m.put('C' , 1,4,7);
-	m.put('D' , 1,4,5,7);
-	m.put('E' , 1,5,7);
-	m.put('F' , 1,2,4,7);
-	m.put('G' , 1,2,4,5,7);
-	m.put('H' , 1,2,5,7);
-	m.put('I' , 2,4,7);
-	m.put('J' , 2,4,5,7);
-	m.put('K' , 1,3,7);
-	m.put('L' , 1,2,3,7);
-	m.put('M' , 1,3,4,7);
-	m.put('N' , 1,3,4,5,7);
-	m.put('O' , 1,3,5,7);
-	m.put('P' , 1,2,3,4,7);
-	m.put('Q' , 1,2,3,4,5,7);
-	m.put('R' , 1,2,3,5,7);
-	m.put('S' , 2,3,4,7);
-	m.put('T' , 2,3,4,5,7);
-	m.put('U' , 1,3,6,7);
-	m.put('V' , 1,2,3,6,7);
-	m.put('W' , 2,4,5,6,7);
-	m.put('X' , 1,3,4,6,7);
-	m.put('Y' , 1,3,4,5,6,7);
-	m.put('Z' , 1,3,5,6,7);
-	m.put('[' , 2,4,6);
-	m.put('\\', 1,2,5,6);
-	m.put(']' , 1,2,4,5,6);
-	m.put('^' , 4,5);
-	m.put('_' , 4,5,6);
-	m.put('`' , 4,7);
-	m.put('a' , 1);
-	m.put('b' , 1,2);
-	m.put('c' , 1,4);
-	m.put('d' , 1,4,5);
-	m.put('e' , 1,5);
-	m.put('f' , 1,2,4);
-	m.put('g' , 1,2,4,5);
-	m.put('h' , 1,2,5);
-	m.put('i' , 2,4);
-	m.put('j' , 2,4,5);
-	m.put('k' , 1,3);
-	m.put('l' , 1,2,3);
-	m.put('m' , 1,3,4);
-	m.put('n' , 1,3,4,5);
-	m.put('o' , 1,3,5);
-	m.put('p' , 1,2,3,4);
-	m.put('q' , 1,2,3,4,5);
-	m.put('r' , 1,2,3,5);
-	m.put('s' , 2,3,4);
-	m.put('t' , 2,3,4,5);
-	m.put('u' , 1,3,6);
-	m.put('v' , 1,2,3,6);
-	m.put('w' , 2,4,5,6);
-	m.put('x' , 1,3,4,6);
-	m.put('y' , 1,3,4,5,6);
-	m.put('z' , 1,3,5,6);
-	m.put('{' , 2,4,6,7);
-	m.put('|' , 1,2,5,6,7);
-	m.put('}' , 1,2,4,5,6,7);
-	m.put('~' , 4,5,7);
-        */
-        m.printAll();
-    }    
+ 
     /*
     boolean[] listPos(char unicode) {
         int val = unicode - 0x2800;
@@ -306,58 +121,6 @@ public class BraillePrinter {
         return moves;
     }
 
-    public static List<List<List<Character>>> getBrailleArray(String txt, int maxCharsByLine, int maxLinesByPage) {
-        List<List<List<Character>>> chPages =  new ArrayList();
-        List<List<Character>> chPage;
-        List<Character> chLine;
-
-        final String[] pages = txt.split("\\f");
-
-        for (String page : pages) {
-           // pagesLinesChars
-            chPage = new ArrayList();
-            chPages.add(chPage);
-
-            final String[] lines = page.split("\\r?\\n");
-            for (String line : lines) {
-                if (chPage.size()>maxLinesByPage) { // Trop de lignes on ajoute une page
-                    chPage = new ArrayList();
-                    chPages.add(chPage);
-                }
-                
-                chLine = new ArrayList();
-                chPage.add(chLine);
-
-                for (int i=0; i<line.length(); i++) { // TODO faire une ligne sur deux en sens inverse
-                    char ch = line.charAt(i);
-                    if (ch == '\t') {
-                        if (chLine.size() < maxCharsByLine) chLine.add(EMPTY);
-                        if (chLine.size() < maxCharsByLine) chLine.add(EMPTY);
-                        if (chLine.size() < maxCharsByLine) chLine.add(EMPTY);
-                    } else if (ch >= 0x2800 && ch <= 0x28FF) { // Deja de l'unicode Braille 
-                        chLine.add(ch);
-                    } else if (ch >= 32 && ch < 127) { // ASCII
-                        Character unicode = fullAsciiToUnicode6_2.charAt(ch-32);
-                        Character unicode2 = AsciiBrailleConverter.mapAsciiToUnicodeBraille.get(ch);
-                        if (unicode2 != null && unicode2.equals(unicode)) {
-                            int test = 1;
-                        }
-                        chLine.add(unicode);
-                    } else {
-                        chLine.add(UNKNOWN);
-                    }
-
-                    if (chLine.size() > maxCharsByLine) {
-                        // Commencement d'une nouvelle ligne si ca depasse (on pourrait aussi tronquer => break)
-                        chLine = new ArrayList();
-                        chPage.add(chLine);
-                    }
-                }
-            }
-        }
-        
-        return chPages;
-    }
 
     
      
@@ -366,7 +129,7 @@ public class BraillePrinter {
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        initAsciiBrailleConverter();
+       // initAsciiBrailleConverter();
 /*
         String fullAsciiToUnicode6_3 = "";
         for (int i=0; i<fullAsciiToUnicode6_2.length(); i++) {
@@ -377,18 +140,12 @@ public class BraillePrinter {
         String file = "C:\\Users\\durands\\Desktop\\EngagesFormat-txt_nat.txt";
         String txt = readFile(file);
         
-        String sTranslated = "";
-        for (char ch : txt.toCharArray()) {
-            if (ch == '\n') {
-                sTranslated += ch;
-            } 
-            int id = fullAsciiToUnicode6_2.indexOf(ch); 
-            sTranslated += (id >= 0) ? fullAsciiToUnicode6_1.charAt(id) : '?';
-        }
+        String sTranslated = AsciiBrailleConverter.toBraille(txt);
+
         
         int maxCharW = 37, maxCharH = 27;
         
-        List<List<List<Character>>> chPages = getBrailleArray(txt, maxCharW, maxCharH);
+        List<List<List<Character>>> chPages = AsciiBrailleConverter.getBrailleArray(txt, maxCharW, maxCharH);
 
         double  A4W = 210, A4H = 297,
                 marginW = 10,

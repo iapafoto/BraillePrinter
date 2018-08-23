@@ -720,7 +720,7 @@ module cut3mm() {
 
 
 
-rotate(90,[1,0,0]) rotate(90/*$t*360*/,[0,1,0]) translate([0,0,-workWidth/2]) exploded(0.*(.5+.5*cos(360*$t))*1.501, true);
+rotate(90,[1,0,0]) rotate(90+$t*360,[0,1,0]) translate([0,0,-workWidth/2]) exploded(1.*(.5+.5*cos(360*$t))*1.501, true);
 
 
 //translate([-60,-270]) linear_extrude(3)  
