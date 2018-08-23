@@ -10,16 +10,16 @@ Plotter Braille
 
 https://www.thingiverse.com/thing:2841496
 
-![Alt text](https://github.com/iapafoto/BraillePrinter/blob/master/Media/cut6mm.png)
-![Alt text](https://github.com/iapafoto/BraillePrinter/blob/master/Media/exploded.jpg)
+![Alt text](https://raw.githubusercontent.com/iapafoto/BraillePrinter/master/Media/Notice/Cut_6mm.png)
+![Alt text](https://raw.githubusercontent.com/iapafoto/BraillePrinter/master/Media/Notice/ExplodedFull.png)
 
 # Real life
 
-![Alt text](https://github.com/iapafoto/BraillePrinter/blob/master/Media/beta.jpg)
+![Alt text](https://raw.githubusercontent.com/iapafoto/BraillePrinter/master/Media/DSC_0298.JPG)
 
-# Beta In action (Video)
+# In action (Video)
 
-https://www.youtube.com/watch?v=n4ModKuULog
+https://www.youtube.com/watch?v=xycg4nxUUws
 
 # Credits
 Serial communication Java/Arduino is powered by jSerialComm
