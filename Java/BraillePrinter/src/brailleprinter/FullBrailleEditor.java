@@ -164,7 +164,7 @@ public class FullBrailleEditor extends JPanel {
             }
         });
 
-        timerCompile = new Timer(2000, (ActionEvent e) -> {
+        timerCompile = new Timer(600, (ActionEvent e) -> {
                     final Map<Integer, List<CompileInfo>> lstInfo1 = doBuildProgram(codePane.getText());
                     codePane.setCompileInfo(lstInfo1);
                     rightPane.setCompileInfo(lstInfo1, codePane);
