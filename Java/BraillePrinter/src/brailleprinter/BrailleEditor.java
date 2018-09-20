@@ -5,8 +5,8 @@
  */
 package brailleprinter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.charset.StandardCharsets;
+import javax.swing.JOptionPane;
 
 
 /**
@@ -15,6 +15,8 @@ import java.util.List;
  */
 public class BrailleEditor extends javax.swing.JFrame {
 
+    private static final boolean SEND_TO_PRINTER = true;
+            
     /**
      * Creates new form BrailleEditor
      */
@@ -82,9 +84,17 @@ public class BrailleEditor extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+
+        int result = JOptionPane.showConfirmDialog(this, "Vérifiez que l'imprimante est bien branché et que la feuille est correctement positionnée", "Imprimer", JOptionPane.OK_CANCEL_OPTION);
+        
+        if (result == JOptionPane.OK_OPTION) {
+            onPrintBraille(fullBrailleEditor1.codePane.getText());
+        }
+        
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    static Arduino arduino = null;
+    
     /**
      * @param args the command line arguments
      */
@@ -107,12 +117,26 @@ public class BrailleEditor extends javax.swing.JFrame {
         //</editor-fold>
         
         //</editor-fold>
+        arduino = new Arduino("COM8", 9600); //enter the port name here, and ensure that Arduino is connected, otherwise exception will be thrown.
+        if (SEND_TO_PRINTER) {
+                arduino.openConnection();
+                arduino.setDataListenerString(StandardCharsets.UTF_8, '\n', (String str) -> {
+                    System.out.print(str);
+                });
+                
+                // TODO: send configuration
+                // Repetitions / times
+        }
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
             new BrailleEditor().setVisible(true);
         });
+        
+        Runtime.getRuntime().addShutdownHook(new Thread(arduino::closeConnection));
     }
+
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private brailleprinter.FullBrailleEditor fullBrailleEditor1;
@@ -128,5 +152,45 @@ public class BrailleEditor extends javax.swing.JFrame {
         String braille = AsciiBrailleConverter.toBraille(text);
         braille = braille.replaceAll("\r\n", "\n");
         fullBrailleEditor1.setText(braille);
+    }
+
+    private static String PAGE_INIT_SEQUENCE = "{";
+    private static String PAGE_END_SEQUENCE = "}";
+    private static String NEW_LINE_SEQUENCE = "\n";
+
+    private void onPrintBraille(String brailleTxt) {
+        
+       
+        try {
+            //File fileDir = new File("C:\\Users\\durands\\Desktop\\FabLab\\texte-txt_nat.txt");
+
+            System.out.println(PAGE_INIT_SEQUENCE);
+            if (SEND_TO_PRINTER) {
+                arduino.serialWrite(PAGE_INIT_SEQUENCE);              
+            }
+
+            //BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(fileDir), "UTF8"));
+            String[] lines = brailleTxt.split("\n");
+            for (int i=0; i<BrailleTextPane.NB_CHAR_H && i<lines.length; i++) {
+                String str = lines[i].length() > BrailleTextPane.NB_CHAR_W ? lines[i].substring(0,BrailleTextPane.NB_CHAR_W) : lines[i];
+                str = AsciiBrailleConverter.brailleToArduinoString(str);
+                System.out.println(str);
+                // TODO rajouter des attentes 
+                if (SEND_TO_PRINTER) {
+                    arduino.serialWrite(str);
+                    arduino.serialWrite(NEW_LINE_SEQUENCE);
+                }
+            }
+            
+            // arduino.serialWrite(PAGE_INIT_SEQUENCE);
+            System.out.println(PAGE_END_SEQUENCE);
+            if (SEND_TO_PRINTER) {
+               arduino.serialWrite(PAGE_END_SEQUENCE);
+            }
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
     }
 }

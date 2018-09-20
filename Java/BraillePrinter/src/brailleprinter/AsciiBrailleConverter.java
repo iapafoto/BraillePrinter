@@ -26,6 +26,21 @@ public class AsciiBrailleConverter {
             CH_NUM = "⠠",
             CH_MAJ = "⠨",
             CH_MAJ_SEQ = "⠒⠨";
+
+    // Traduit caracteres par caracteres sans aucun rafinage
+    static String brailleToArduinoString(String str) {
+        char[] chars = str.toCharArray();
+        String ascii = "";
+        for(char c : chars) {
+            int pos = FULL_ASCII_TO_UNICODE_6_ANTOINE.indexOf(c);
+            if (pos >= 0) {
+                ascii += fullAsciiToUnicode6_1.charAt(pos);
+            } else {
+                ascii += " ";
+            }
+        }
+        return ascii;
+    }
         
     enum EType { DIGIT, UPPER, UPPER_SEQ, UPPER_SEQ_FIRST, UPPER_SEQ_LAST, SIMPLE, MIX_CHAR, PUNCTUATION };
     
@@ -42,8 +57,8 @@ public class AsciiBrailleConverter {
     static final String braille8Unicode_2 = " ⠂⠄⠆⠈⠊⠌⠎⠐⠒⠔⠖⠘⠚⠜⠞⠠⠢⠤⠦⠨⠪⠬⠮⠰⠲⠴⠶⠸⠺⠼⠾⡀⡂⡄⡆⡈⡊⡌⡎⡐⡒⡔⡖⡘⡚⡜⡞⡠⡢⡤⡦⡨⡪⡬⡮⡰⡲⡴⡶⡸⡺⡼⡾⢂⢆⢊⢎⢐⢒⢔⢖⢚⢜⢞⢢⢦⢪⢮⢰⢲⢴⢶⢺⢼⢾⣊⣎⣔⣚⣦⣪⣴⣶⣺";
 
     // valable de 32 a 32+128 (faire char-32 pour mapper correctement)
-    static final String fullAsciiToUnicode6_1 = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`ABCDEFGHIJKLMNOPQRSTUVWXYZ{|}~";
-    static final String FULL_ASCII_TO_UNICODE_6_2 = "⠀⠮⠐⠼⠫⠩⠯⠄⠷⠾⠡⠬⠠⠤⠨⠌⠴⠂⠆⠒⠲⠢⠖⠶⠦⠔⠱⠰⠣⠿⠜⠹⠈⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵⠪⠳⠻⠘⠸⠀⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵⠀⠀⠀⠀⠀";
+    static final String fullAsciiToUnicode6_1 =           " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`ABCDEFGHIJKLMNOPQRSTUVWXYZ{|}~";
+    //static final String FULL_ASCII_TO_UNICODE_6_2 =       "⠀⠮⠐⠼⠫⠩⠯⠄⠷⠾⠡⠬⠠⠤⠨⠌⠴⠂⠆⠒⠲⠢⠖⠶⠦⠔⠱⠰⠣⠿⠜⠹⠈⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵⠪⠳⠻⠘⠸⠀⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵⠀⠀⠀⠀⠀";
     // Variante avec les Chiffres « Antoine » cf wikipedia (systeme recomandé)
     static final String FULL_ASCII_TO_UNICODE_6_ANTOINE = "⠀⠮⠐⠼⠫⠩⠯⠄⠷⠾⠡⠬⠠⠤⠨⠌⠼⠡⠣⠩⠹⠱⠫⠻⠳⠪⠱⠰⠣⠿⠜⠹⠈⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵⠪⠳⠻⠘⠸⠀⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵⠀⠀⠀⠀⠀";
     static final String defaultFullAsciiToUnicode = FULL_ASCII_TO_UNICODE_6_ANTOINE;

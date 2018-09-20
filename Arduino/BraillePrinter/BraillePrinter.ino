@@ -52,7 +52,10 @@ double MOTOR_SCALE_Y = 8; // step to mm
 
 //String fullAsciiToUnicode6_1 = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`ABCDEFGHIJKLMNOPQRSTUVWXYZ{|}~";
 //String fullAsciiToUnicode6_2 = "⠀⠮⠐⠼⠫⠩⠯⠄⠷⠾⠡⠬⠠⠤⠨⠌⠴⠂⠆⠒⠲⠢⠖⠶⠦⠔⠱⠰⠣⠿⠜⠹⠈⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵⠪⠳⠻⠘⠸⠀⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵⠀⠀⠀⠀⠀";
-int fullAsciiToBraille[] = {0,46,16,60,43,41,47,4,55,62,33,44,32,36,40,12,52,2,6,18 ,50,34,22,54,38,20,49,48,35,63, 28,57,8, 1, 3, 9,25,17,11,27,19,10,26,5,7,13,29,21,15,31,23,14,30,37,39,58,45,61,53,42,51,59,24,56,0,1,3,9,25,17,11,27,19,10,26,5,7,13,29,21,15,31,23,14,30,37,39,58,45,61,53,0,0,0,0,0};
+
+//                                     !  \" #  $  %  &  '  (  )  *  +  ,  -  .  /     0  1  2  3  4  5  6  7  8  9     :  ;  <  =  >  ?  @   A B C D  E  F  G  H  I  J  K L M  N  O  P  Q  R  S  T  U  V  W  X  Y  Z     [  \\ ]  ^  _ `  A B C D  E  F  G  H  I  J  K L M  N  O  P  Q  R  S  T  U  V  W  X  Y  Z  { | } ~ ";
+//int fullAsciiToBraille[] =        {0,46,16,60,43,41,47,4 ,55,62,33,44,32,36,40,12,   52,2, 6, 18,50,34,22,54,38,20,   49,48,35,63,28,57,8,  1,3,9,25,17,11,27,19,10,26,5,7,13,29,21,15,31,23,14,30,37,39,58,45,61,53,   42,51,59,24,56,0,1,3,9,25,17,11,27,19,10,26,5,7,13,29,21,15,31,23,14,30,37,39,58,45,61,53,0,0,0,0,0};
+int fullAsciiToBrailleAntoine[] =   {0,46,16,60,43,41,47,4 ,55,62,33,44,32,36,40,12,   60,33,35,41,57,49,43,59,51,42,   49,48,35,63,28,57,8,  1,3,9,25,17,11,27,19,10,26,5,7,13,29,21,15,31,23,14,30,37,39,58,45,61,53,   42,51,59,24,56,0,1,3,9,25,17,11,27,19,10,26,5,7,13,29,21,15,31,23,14,30,37,39,58,45,61,53,0,0,0,0,0};
 
 // ------------------------------------------
 
@@ -232,9 +235,9 @@ int convertToBraille(char ascii) {
   }
   Serial.println("value at");
   Serial.println(id);
-  Serial.println(fullAsciiToBraille[id]);
+  Serial.println(fullAsciiToBrailleAntoine[id]);
   
-  int braille = fullAsciiToBraille[id];
+  int braille = fullAsciiToBrailleAntoine[id];
  // Serial.println(unicode);
   return braille;
 }
@@ -265,7 +268,7 @@ void loop() {
 // TODO voir si pas plus simple avec
 // String command = Serial.readString();
 // surtout pour gerer la marche arriere 1 ligne sur 2(et peu etre unicode)
-     if (data == '\n' || data == '\r') {
+     if (/*data == '\n' ||*/ data == '\r') {
       // Retour a la ligne
      
      } else if (data == '{') {
@@ -295,7 +298,7 @@ void loop() {
        // motorX(40);
        // pxLast+=40;
        // x0 += 40;
-     } else if (data == '#') {
+     } else if (data == '\n'/* || data == '#'*/) {
         nextLine();
        //B moveXToStart();
  #ifdef WITH_MOTORS
