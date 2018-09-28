@@ -82,6 +82,7 @@ int isXEnd = 0; // indicate if X is end of course
 char data; //variable to store incoming data from JAVA 
 boolean brailleOn = false;
 
+// ordre des points Braille 
 int brailleOrder[] = { 1,2,3,7,8,6,5,4 };
 //int brailleOrder[] = { 0,1,2,6,7,5,4,3 };
 //int brailleOrderInv[] = { 3,4,5,7,6,2,1,0 };
@@ -243,8 +244,38 @@ int convertToBraille(char ascii) {
 }
 
 
-void loop() {
+int configuration(char kind, int val) {
+  switch(kind) {
+      case 'W': WRITE_SPEED = val; break;
+      case 'M': MOVE_SPEED = val; break;
+      case 'N': NB_EMBOSS_REP = val; break;
+      case 'R': EMBOSS_DELAY_REP = val; break;
+      case 'B': EMBOSS_DELAY_BEFORE = val; break;
+      case 'D': EMBOSS_DURATION = val; break;
+      case 'A': EMBOSS_DELAY_AFTER = val; break;
+      default: break;
+  }
+}
 
+
+void printConfiguration() {
+  Serial.print("WRITE_SPEED: ");
+  Serial.println(WRITE_SPEED);
+  Serial.print("MOVE_SPEED: ");
+  Serial.println(MOVE_SPEED);
+  Serial.print("NB_EMBOSS_REP: ");
+  Serial.println(NB_EMBOSS_REP);
+  Serial.print("EMBOSS_DELAY_REP: ");
+  Serial.println(EMBOSS_DELAY_REP);
+  Serial.print("EMBOSS_DELAY_BEFORE: ");
+  Serial.println(EMBOSS_DELAY_BEFORE);
+  Serial.print("EMBOSS_DURATION: ");
+  Serial.println(EMBOSS_DURATION);
+  Serial.print("EMBOSS_DELAY_AFTER: ");
+  Serial.println(EMBOSS_DELAY_AFTER);
+}
+
+void loop() {
 
 // Stream.readBytesUntil(character, buffer, length)
 // http://pwillard.com/?p=249
@@ -261,17 +292,34 @@ void loop() {
     
   }
   */
-   
+
       data = Serial.read();
  //     Serial.print(data);
          
 // TODO voir si pas plus simple avec
 // String command = Serial.readString();
 // surtout pour gerer la marche arriere 1 ligne sur 2(et peu etre unicode)
-     if (/*data == '\n' ||*/ data == '\r') {
+
+     if (data == '@') {
+        // ex:"@W:40@@M:100@"
+          String conf = Serial.readStringUntil('@');
+          
+          Serial.print("=>[");
+          Serial.print(conf);
+          Serial.println("]");
+          
+          char type = conf.charAt(0);
+          int value = conf.substring(2).toInt();
+          configuration(type, value);
+
+          
+          
+     } else if (/*data == '\n' ||*/ data == '\r') {
       // Retour a la ligne
      
      } else if (data == '{') {
+        printConfiguration();
+        
         // Init position
         #ifdef DEBUG
           Serial.println("Init position");
