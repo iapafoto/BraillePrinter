@@ -7,15 +7,16 @@ double ONE_CHAR_X = 6.5; //6.5; //6.2; // Size of One char carret
 
 
 // Speed -----------------------------------
-int WRITE_SPEED = 40;
-int MOVE_SPEED = 110;
+  int WRITE_SPEED = 40;
+  int MOVE_SPEED = 110;
+  
+  int NB_EMBOSS_REP = 2;
+  int EMBOSS_DELAY_REP = 50; 
+  
+  int EMBOSS_DELAY_BEFORE = 10; // delais entre le dernier mouvement et le debut de l'embossage
+  int EMBOSS_DURATION = 20; // 50
+  int EMBOSS_DELAY_AFTER = 50; // 20
 
-int NB_EMBOSS_REP = 2;
-int EMBOSS_DELAY_REP = 50; 
-
-int EMBOSS_DELAY_BEFORE = 10; // delais entre le dernier mouvement et le debut de l'embossage
-int EMBOSS_DURATION = 20; // 50
-int EMBOSS_DELAY_AFTER = 50; // 20
 
 // Page configuration (A4) -------
 int PAGE_W = 210;
@@ -59,12 +60,61 @@ int fullAsciiToBrailleAntoine[] =   {0,46,16,60,43,41,47,4 ,55,62,33,44,32,36,40
 
 // ------------------------------------------
 
+
+#include <EEPROM.h>
+
 #ifdef WITH_MOTORS
   #include <AFMotor.h>
 #endif
 
 #define BACK -1
 #define FORW 1
+
+
+#include <Arduino.h>  // for type definitions
+
+template <class T> int EEPROM_writeAnything(int ee, const T& value)
+{
+    const byte* p = (const byte*)(const void*)&value;
+    unsigned int i;
+    for (i = 0; i < sizeof(value); i++)
+          EEPROM.write(ee++, *p++);
+    return i;
+}
+
+template <class T> int EEPROM_readAnything(int ee, T& value)
+{
+    byte* p = (byte*)(void*)&value;
+    unsigned int i;
+    for (i = 0; i < sizeof(value); i++)
+          *p++ = EEPROM.read(ee++);
+    return i;
+}
+
+void loadConfiguration()
+{
+    if (EEPROM.read(0) == 100) {
+      EEPROM_readAnything(1, WRITE_SPEED);
+      EEPROM_readAnything(5, MOVE_SPEED);
+      EEPROM_readAnything(9, NB_EMBOSS_REP);
+      EEPROM_readAnything(13, EMBOSS_DELAY_REP);
+      EEPROM_readAnything(17, EMBOSS_DELAY_BEFORE);
+      EEPROM_readAnything(21, EMBOSS_DURATION);
+      EEPROM_readAnything(25, EMBOSS_DELAY_AFTER);
+    } // sinon on garde les valeurs par defaut
+}
+
+void saveConfiguration()
+{
+    EEPROM.write(0, 100); // Pour indiquer que l'on a deja sauvegardé une fois des vrai valeurs
+    EEPROM_writeAnything(1, WRITE_SPEED);
+    EEPROM_writeAnything(5, MOVE_SPEED);
+    EEPROM_writeAnything(9, NB_EMBOSS_REP);
+    EEPROM_writeAnything(13, EMBOSS_DELAY_REP);
+    EEPROM_writeAnything(17, EMBOSS_DELAY_BEFORE);
+    EEPROM_writeAnything(21, EMBOSS_DURATION);
+    EEPROM_writeAnything(25, EMBOSS_DELAY_AFTER);
+}
 
 
 // Connect a stepper motor 
@@ -88,6 +138,9 @@ int brailleOrder[] = { 1,2,3,7,8,6,5,4 };
 //int brailleOrderInv[] = { 3,4,5,7,6,2,1,0 };
 
 void setup() {
+  
+  loadConfiguration();
+  
   pinMode(PIN_LED, OUTPUT);
   
   Serial.begin(9600);
@@ -259,20 +312,22 @@ int configuration(char kind, int val) {
 
 
 void printConfiguration() {
-  Serial.print("WRITE_SPEED: ");
-  Serial.println(WRITE_SPEED);
-  Serial.print("MOVE_SPEED: ");
-  Serial.println(MOVE_SPEED);
-  Serial.print("NB_EMBOSS_REP: ");
-  Serial.println(NB_EMBOSS_REP);
-  Serial.print("EMBOSS_DELAY_REP: ");
-  Serial.println(EMBOSS_DELAY_REP);
-  Serial.print("EMBOSS_DELAY_BEFORE: ");
-  Serial.println(EMBOSS_DELAY_BEFORE);
-  Serial.print("EMBOSS_DURATION: ");
-  Serial.println(EMBOSS_DURATION);
-  Serial.print("EMBOSS_DELAY_AFTER: ");
-  Serial.println(EMBOSS_DELAY_AFTER);
+  Serial.print("$");
+  Serial.print("@W:");
+  Serial.print(WRITE_SPEED);
+  Serial.print("@@M:");
+  Serial.print(MOVE_SPEED);
+  Serial.print("@@N:");
+  Serial.print(NB_EMBOSS_REP);
+  Serial.print("@@R:");
+  Serial.print(EMBOSS_DELAY_REP);
+  Serial.print("@@B:");
+  Serial.print(EMBOSS_DELAY_BEFORE);
+  Serial.print("@@D:");
+  Serial.print(EMBOSS_DURATION);
+  Serial.print("@@A:");
+  Serial.print(EMBOSS_DELAY_AFTER);
+  Serial.println("@$");
 }
 
 void loop() {
@@ -300,7 +355,12 @@ void loop() {
 // String command = Serial.readString();
 // surtout pour gerer la marche arriere 1 ligne sur 2(et peu etre unicode)
 
-     if (data == '@') {
+     if (data == '$') {
+          printConfiguration();
+     } else if (data == '^') {
+          saveConfiguration();
+          Serial.println("Configuration sauvegardée");
+     } else if (data == '@') {
         // ex:"@W:40@@M:100@"
           String conf = Serial.readStringUntil('@');
           
@@ -310,15 +370,12 @@ void loop() {
           
           char type = conf.charAt(0);
           int value = conf.substring(2).toInt();
-          configuration(type, value);
-
-          
+          configuration(type, value);          
           
      } else if (/*data == '\n' ||*/ data == '\r') {
       // Retour a la ligne
      
      } else if (data == '{') {
-        printConfiguration();
         
         // Init position
         #ifdef DEBUG

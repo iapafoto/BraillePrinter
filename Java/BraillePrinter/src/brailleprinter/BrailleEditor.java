@@ -19,8 +19,13 @@ public class BrailleEditor extends javax.swing.JFrame {
 
     private static final boolean SEND_TO_PRINTER = true;
 
+    private static void parseConfiguration(String str) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     // TODO read conf in file
-    private Configuration configuration = new Configuration();
+    private static Configuration configuration = new Configuration();
+    private static boolean isConfigRead = false;
 
         
     /**
@@ -147,12 +152,40 @@ public class BrailleEditor extends javax.swing.JFrame {
 
     
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // GetConfiguration on arduino
+        connectArduino();
+        if (arduino != null) {
+            isConfigRead = false;
+            System.out.println("Recuperation de la Configuration de la Picoreuse");
+            arduino.serialWrite("$"); // Get config
+            long t0 = System.currentTimeMillis();
+            while (isConfigRead == false) {
+                if (System.currentTimeMillis() - t0 > 5000) {
+                    // Cannot read config
+                    break;
+                }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(BrailleEditor.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            if (isConfigRead == true) {
+                // OK la configuration à bien ete recuperee 
+                isConfigRead = false;
+            }
+        }
+        
         ConfigurationPanel configurationPanel = new ConfigurationPanel(configuration);
 
         int result = JOptionPane.showConfirmDialog(this, configurationPanel, "Configuration", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             configuration = configurationPanel.getConfiguration();
             // TODO save conf to file
+            if (arduino != null) {
+                arduino.serialWrite(configuration.toString());
+                arduino.serialWrite("^"); // Save config
+            }
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 
@@ -172,16 +205,30 @@ public class BrailleEditor extends javax.swing.JFrame {
         if (arduino == null) {
             SerialPort arduinoPort = detectArduinoPort();
             if (arduinoPort != null) {
+                System.out.println("Connexion à la Picoreuse");
                 arduino = new Arduino(arduinoPort.getSystemPortName(), arduinoPort.getBaudRate()); //enter the port name here, and ensure that Arduino is connected, otherwise exception will be thrown.
                 if (SEND_TO_PRINTER) {
                     arduino.openConnection();
                     arduino.setDataListenerString(StandardCharsets.UTF_8, '\n', (String str) -> {
-                        System.out.print(str);
+                        System.out.print("[Picoreuse]:" + str);
+                        if (str.startsWith("$")) {
+                            System.out.println("La configuration de la Picoreuse est : " + str);
+                            configuration = new Configuration(str);
+                            isConfigRead = true;
+                        }
                     });
-
+                    
+                    try {
+                        Thread.sleep(3000);
+                        System.out.println("Connexion effectuée");
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(BrailleEditor.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
                 return true;
             }
+            
+            System.out.println("Le cable USB ne semble pas connecté");
             return false;
         }
         return true;
