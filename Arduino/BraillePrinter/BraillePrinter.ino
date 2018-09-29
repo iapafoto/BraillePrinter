@@ -386,10 +386,6 @@ void loop() {
         #ifdef DEBUG
           Serial.println("Braille On");
         #endif
-
-        #ifdef DEBUG
-          Serial.println("Braille On");
-        #endif
           brailleOn = true;
      
      } else if (data == '}') {
@@ -417,7 +413,6 @@ void loop() {
 
         if (brailleOn) {
           if (data < '~') {
-            Serial.print("---------------------");
             Serial.println(data);
            // Serial.println((int)data);
             data = convertToBraille(data); // ascii char to unicode

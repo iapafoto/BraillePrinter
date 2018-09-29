@@ -312,7 +312,7 @@ public class BrailleEditor extends javax.swing.JFrame {
             if (SEND_TO_PRINTER) {
                 arduino.serialWrite(PAGE_INIT_SEQUENCE);
             }
-/*
+
             //BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(fileDir), "UTF8"));
             String[] lines = brailleTxt.split("\n");
             for (int i = 0; i < BrailleTextPane.NB_CHAR_H && i < lines.length; i++) {
@@ -331,7 +331,7 @@ public class BrailleEditor extends javax.swing.JFrame {
             if (SEND_TO_PRINTER) {
                 arduino.serialWrite(PAGE_END_SEQUENCE);
             }
-*/
+
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
