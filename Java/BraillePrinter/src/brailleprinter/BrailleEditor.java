@@ -25,9 +25,11 @@ public class BrailleEditor extends javax.swing.JFrame {
 
     // TODO read conf in file
     private static Configuration configuration = new Configuration();
-    private static boolean isConfigRead = false;
+    private static boolean isConfigRead = false, isEndOfLine = false;
 
-        
+    private final String GET_CONF_CHAR = "~";
+    private final String SAVE_CONF_CHAR = "^";
+    
     /**
      * Creates new form BrailleEditor
      */
@@ -48,8 +50,8 @@ public class BrailleEditor extends javax.swing.JFrame {
     private void initComponents() {
 
         jSplitPane1 = new javax.swing.JSplitPane();
-        fullTextEditor1 = new brailleprinter.FullTextEditor();
         fullBrailleEditor1 = new brailleprinter.FullBrailleEditor();
+        fullTextEditor1 = new brailleprinter.FullTextEditor();
         jPanel1 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
@@ -60,8 +62,8 @@ public class BrailleEditor extends javax.swing.JFrame {
         jSplitPane1.setBackground(new java.awt.Color(0, 0, 0));
         jSplitPane1.setResizeWeight(0.5);
         jSplitPane1.setToolTipText("");
-        jSplitPane1.setLeftComponent(fullTextEditor1);
         jSplitPane1.setRightComponent(fullBrailleEditor1);
+        jSplitPane1.setLeftComponent(fullTextEditor1);
 
         getContentPane().add(jSplitPane1, java.awt.BorderLayout.CENTER);
 
@@ -117,47 +119,13 @@ public class BrailleEditor extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // Connexion, si ca ne fonctionne pas on ne va pas plus loin
-        if (!connectArduino()) {
-            JOptionPane.showMessageDialog(this, "L'imprimante n'est pas connectée, veuillez brancher le cable USB puis recommencer l'opération", "Imprimante introuvable", JOptionPane.OK_OPTION);
-            return;
-        }
-
-        // Message     
-        int result = JOptionPane.showConfirmDialog(this, "Vérifiez que l'imprimante est bien branché et que la feuille est correctement positionnée", "Imprimer", JOptionPane.OK_CANCEL_OPTION);
-
-        if (result == JOptionPane.OK_OPTION) {
-
-            if (SEND_TO_PRINTER) {
-                sendConfiguration();
-            }
-            
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(BrailleEditor.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-            onPrintBraille(fullBrailleEditor1.codePane.getText());
-        }
-
-    }//GEN-LAST:event_jButton1ActionPerformed
-
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // On passe tout en minuscule
-        String txt = fullTextEditor1.codePane.getText();
-        fullTextEditor1.codePane.setText(txt.toLowerCase());
-    }//GEN-LAST:event_jButton2ActionPerformed
-
-    
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // GetConfiguration on arduino
         connectArduino();
         if (arduino != null) {
             isConfigRead = false;
             System.out.println("Recuperation de la Configuration de la Picoreuse");
-            arduino.serialWrite("$"); // Get config
+            arduino.serialWrite(GET_CONF_CHAR); // Get config
             long t0 = System.currentTimeMillis();
             while (isConfigRead == false) {
                 if (System.currentTimeMillis() - t0 > 5000) {
@@ -171,11 +139,11 @@ public class BrailleEditor extends javax.swing.JFrame {
                 }
             }
             if (isConfigRead == true) {
-                // OK la configuration à bien ete recuperee 
+                // OK la configuration à bien ete recuperee
                 isConfigRead = false;
             }
         }
-        
+
         ConfigurationPanel configurationPanel = new ConfigurationPanel(configuration);
 
         int result = JOptionPane.showConfirmDialog(this, configurationPanel, "Configuration", JOptionPane.OK_CANCEL_OPTION);
@@ -184,11 +152,44 @@ public class BrailleEditor extends javax.swing.JFrame {
             // TODO save conf to file
             if (arduino != null) {
                 arduino.serialWrite(configuration.toString());
-                arduino.serialWrite("^"); // Save config
+                arduino.serialWrite(SAVE_CONF_CHAR); // Save config
             }
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // On passe tout en minuscule
+        String txt = fullTextEditor1.codePane.getText();
+        fullTextEditor1.codePane.setText(txt.toLowerCase());
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // Connexion, si ca ne fonctionne pas on ne va pas plus loin
+        if (!connectArduino()) {
+            JOptionPane.showMessageDialog(this, "L'imprimante n'est pas connectée, veuillez brancher le cable USB puis recommencer l'opération", "Imprimante introuvable", JOptionPane.OK_OPTION);
+            return;
+        }
+
+        // Message
+        int result = JOptionPane.showConfirmDialog(this, "Vérifiez que l'imprimante est bien branché et que la feuille est correctement positionnée", "Imprimer", JOptionPane.OK_CANCEL_OPTION);
+
+        if (result == JOptionPane.OK_OPTION) {
+
+            if (SEND_TO_PRINTER) {
+                sendConfiguration();
+            }
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(BrailleEditor.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            onPrintBraille(fullBrailleEditor1.codePane.getText());
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    
     static Arduino arduino = null;
 
     static SerialPort detectArduinoPort() {
@@ -211,10 +212,13 @@ public class BrailleEditor extends javax.swing.JFrame {
                     arduino.openConnection();
                     arduino.setDataListenerString(StandardCharsets.UTF_8, '\n', (String str) -> {
                         System.out.print("[Picoreuse]:" + str);
-                        if (str.startsWith("$")) {
+                        if (str.startsWith("$@W:")) {
                             System.out.println("La configuration de la Picoreuse est : " + str);
                             configuration = new Configuration(str);
                             isConfigRead = true;
+                        }
+                        if (str.contains("EndOfLine")) {
+                            isEndOfLine = true;
                         }
                     });
                     
@@ -323,6 +327,7 @@ public class BrailleEditor extends javax.swing.JFrame {
                 if (SEND_TO_PRINTER) {
                     arduino.serialWrite(str);
                     arduino.serialWrite(NEW_LINE_SEQUENCE);
+                    waitEndOfLine(30000);
                 }
             }
 
@@ -335,6 +340,27 @@ public class BrailleEditor extends javax.swing.JFrame {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-
+    }
+    
+    boolean waitEndOfLine(long timeout) {
+        isEndOfLine = false;
+        long t0 = System.currentTimeMillis();
+        while (isEndOfLine == false) {
+            if (System.currentTimeMillis() - t0 > timeout) {
+                // Cannot read config
+                break;
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(BrailleEditor.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        if (isEndOfLine == true) {
+            // OK la configuration à bien ete recuperee 
+            isEndOfLine = false;
+            return true;
+        }
+        return false;
     }
 }

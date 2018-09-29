@@ -21,9 +21,9 @@ double ONE_CHAR_X = 6.5; //6.5; //6.2; // Size of One char carret
 // Page configuration (A4) -------
 int PAGE_W = 210;
 int PAGE_H = 297;
-int MARGIN_X = 40, MARGIN_Y = 30;
-int MIN_X = 0 + MARGIN_X/2;
-int MAX_X = PAGE_W - MARGIN_X/2 ;
+int MARGIN_X = 27, MARGIN_Y = 25;
+int MIN_X = 0 + MARGIN_X/2 - 5;
+int MAX_X = PAGE_W - MARGIN_X/2 + 5 ;
 int MIN_Y = 0 + MARGIN_Y/2;
 int MAX_Y = PAGE_H - MARGIN_Y/2;
 
@@ -32,7 +32,7 @@ int MAX_Y = PAGE_H - MARGIN_Y/2;
 #define WITH_MOTORS
 #define WITH_SOLENOIDE
 #define WITH_X0_SWITCH
-#define DEBUG
+//#define DEBUG
 
 // --------------------------------
 
@@ -211,7 +211,10 @@ void nextLine() {
     //moveXToStart();
     //moveXToEnd();
     motor1.setSpeed(MOVE_SPEED);
+    //pxLast = MARGIN_X;
     motorY(ONE_LINE_Y);
+    motorX(MARGIN_X-pxLast); 
+    pxLast = MARGIN_X;
     motor1.setSpeed(WRITE_SPEED);
     x0 = MARGIN_X;
     y0 += ONE_LINE_Y;
@@ -287,9 +290,9 @@ int convertToBraille(char ascii) {
   if (id <0 || id >= 98) {
     id = 0;
   }
-  Serial.println("value at");
-  Serial.println(id);
-  Serial.println(fullAsciiToBrailleAntoine[id]);
+  //Serial.println("value at");
+  //Serial.println(id);
+  //Serial.println(fullAsciiToBrailleAntoine[id]);
   
   int braille = fullAsciiToBrailleAntoine[id];
  // Serial.println(unicode);
@@ -349,13 +352,13 @@ void loop() {
   */
 
       data = Serial.read();
- //     Serial.print(data);
+     // Serial.print(data);
          
 // TODO voir si pas plus simple avec
 // String command = Serial.readString();
 // surtout pour gerer la marche arriere 1 ligne sur 2(et peu etre unicode)
 
-     if (data == '$') {
+     if (data == '~') {
           printConfiguration();
      } else if (data == '^') {
           saveConfiguration();
@@ -378,14 +381,14 @@ void loop() {
      } else if (data == '{') {
         
         // Init position
-        #ifdef DEBUG
+        //#ifdef DEBUG
           Serial.println("Init position");
-        #endif
-        moveXToEnd();
+        //#endif
+          moveXToEnd();
         
-        #ifdef DEBUG
+        //#ifdef DEBUG
           Serial.println("Braille On");
-        #endif
+        //#endif
           brailleOn = true;
      
      } else if (data == '}') {
@@ -401,6 +404,8 @@ void loop() {
        // x0 += 40;
      } else if (data == '\n'/* || data == '#'*/) {
         nextLine();
+        Serial.println("EndOfLine");
+        
        //B moveXToStart();
  #ifdef WITH_MOTORS
         motor1.release();

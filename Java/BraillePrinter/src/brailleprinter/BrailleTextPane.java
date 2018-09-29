@@ -39,7 +39,7 @@ import javax.swing.text.StyleConstants;
 public class BrailleTextPane extends JTextPane {
     
     public final static int 
-            NB_CHAR_W = 23, 
+            NB_CHAR_W = 27, 
             NB_CHAR_H = 25;
     
     private final static TexturePaint 
