@@ -14,7 +14,7 @@ The java gui
 - unable to configure the printer 
 - send the ascii version on printer (via USB) in order to embosse it
 
-https://raw.githubusercontent.com/iapafoto/BraillePrinter/master/Media/ihm.png
+![Alt text](https://raw.githubusercontent.com/iapafoto/BraillePrinter/master/Media/ihm.png)
 
 # Design
 
