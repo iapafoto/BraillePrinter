@@ -28,7 +28,7 @@ public class EditorTextPane extends JTextPane {
         try {
             InputStream is = BrailleTextPane.class.getResourceAsStream("FreeMono.ttf");
             Font font = Font.createFont(Font.TRUETYPE_FONT, is);
-            setFont(font.deriveFont(20f));
+            setFont(font.deriveFont(24f));
         } catch (FontFormatException | IOException ex) {
             Logger.getLogger(BrailleTextPane.class.getName()).log(Level.SEVERE, null, ex);
         }

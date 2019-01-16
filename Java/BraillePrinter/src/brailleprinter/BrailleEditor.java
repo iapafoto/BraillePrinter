@@ -5,9 +5,11 @@
  */
 package brailleprinter;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.fazecast.jSerialComm.SerialPort;
+import java.nio.charset.StandardCharsets;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -15,12 +17,25 @@ import java.util.List;
  */
 public class BrailleEditor extends javax.swing.JFrame {
 
+    private static final boolean SEND_TO_PRINTER = true;
+
+    private static void parseConfiguration(String str) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    // TODO read conf in file
+    private static Configuration configuration = new Configuration();
+    private static boolean isConfigRead = false, isEndOfLine = false;
+
+    private final String GET_CONF_CHAR = "~";
+    private final String SAVE_CONF_CHAR = "^";
+    
     /**
      * Creates new form BrailleEditor
      */
     public BrailleEditor() {
         initComponents();
-        
+
         fullBrailleEditor1.setPresenter(this);
         fullTextEditor1.setPresenter(this);
     }
@@ -35,18 +50,20 @@ public class BrailleEditor extends javax.swing.JFrame {
     private void initComponents() {
 
         jSplitPane1 = new javax.swing.JSplitPane();
-        fullTextEditor1 = new brailleprinter.FullTextEditor();
         fullBrailleEditor1 = new brailleprinter.FullBrailleEditor();
+        fullTextEditor1 = new brailleprinter.FullTextEditor();
         jPanel1 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jSplitPane1.setBackground(new java.awt.Color(0, 0, 0));
         jSplitPane1.setResizeWeight(0.5);
         jSplitPane1.setToolTipText("");
-        jSplitPane1.setLeftComponent(fullTextEditor1);
         jSplitPane1.setRightComponent(fullBrailleEditor1);
+        jSplitPane1.setLeftComponent(fullTextEditor1);
 
         getContentPane().add(jSplitPane1, java.awt.BorderLayout.CENTER);
 
@@ -59,12 +76,30 @@ public class BrailleEditor extends javax.swing.JFrame {
             }
         });
 
+        jButton2.setText("Minuscule");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        jButton3.setText("Configuration");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
+                .addComponent(jButton2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 282, Short.MAX_VALUE)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -72,7 +107,10 @@ public class BrailleEditor extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton2)
+                    .addComponent(jButton3))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -81,10 +119,132 @@ public class BrailleEditor extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // GetConfiguration on arduino
+        connectArduino();
+        if (arduino != null) {
+            isConfigRead = false;
+            System.out.println("Recuperation de la Configuration de la Picoreuse");
+            arduino.serialWrite(GET_CONF_CHAR); // Get config
+            long t0 = System.currentTimeMillis();
+            while (isConfigRead == false) {
+                if (System.currentTimeMillis() - t0 > 5000) {
+                    // Cannot read config
+                    break;
+                }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(BrailleEditor.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            if (isConfigRead == true) {
+                // OK la configuration à bien ete recuperee
+                isConfigRead = false;
+            }
+        }
+
+        ConfigurationPanel configurationPanel = new ConfigurationPanel(configuration);
+
+        int result = JOptionPane.showConfirmDialog(this, configurationPanel, "Configuration", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            configuration = configurationPanel.getConfiguration();
+            // TODO save conf to file
+            if (arduino != null) {
+                arduino.serialWrite(configuration.toString());
+                arduino.serialWrite(SAVE_CONF_CHAR); // Save config
+            }
+        }
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // On passe tout en minuscule
+        String txt = fullTextEditor1.codePane.getText();
+        fullTextEditor1.codePane.setText(txt.toLowerCase());
+    }//GEN-LAST:event_jButton2ActionPerformed
+
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+        // Connexion, si ca ne fonctionne pas on ne va pas plus loin
+        if (!connectArduino()) {
+            JOptionPane.showMessageDialog(this, "L'imprimante n'est pas connectée, veuillez brancher le cable USB puis recommencer l'opération", "Imprimante introuvable", JOptionPane.OK_OPTION);
+            return;
+        }
+
+        // Message
+        int result = JOptionPane.showConfirmDialog(this, "Vérifiez que l'imprimante est bien branché et que la feuille est correctement positionnée", "Imprimer", JOptionPane.OK_CANCEL_OPTION);
+
+        if (result == JOptionPane.OK_OPTION) {
+
+            if (SEND_TO_PRINTER) {
+                sendConfiguration();
+            }
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(BrailleEditor.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            onPrintBraille(fullBrailleEditor1.codePane.getText());
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    
+    static Arduino arduino = null;
+
+    static SerialPort detectArduinoPort() {
+        SerialPort[] ports = SerialPort.getCommPorts();
+        for (SerialPort port : ports) {
+            if (port.getDescriptivePortName().toLowerCase().contains("arduino")) {
+                return port;
+            }
+        }
+        return null;
+    }
+
+    static boolean connectArduino() {
+        if (arduino == null) {
+            SerialPort arduinoPort = detectArduinoPort();
+            if (arduinoPort != null) {
+                System.out.println("Connexion à la Picoreuse");
+                arduino = new Arduino(arduinoPort.getSystemPortName(), arduinoPort.getBaudRate()); //enter the port name here, and ensure that Arduino is connected, otherwise exception will be thrown.
+                if (SEND_TO_PRINTER) {
+                    arduino.openConnection();
+                    arduino.setDataListenerString(StandardCharsets.UTF_8, '\n', (String str) -> {
+                        System.out.print("[Picoreuse]:" + str);
+                        if (str.startsWith("$@W:")) {
+                            System.out.println("La configuration de la Picoreuse est : " + str);
+                            configuration = new Configuration(str);
+                            isConfigRead = true;
+                        }
+                        if (str.contains("EndOfLine")) {
+                            isEndOfLine = true;
+                        }
+                    });
+                    
+                    try {
+                        Thread.sleep(3000);
+                        System.out.println("Connexion effectuée");
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(BrailleEditor.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                return true;
+            }
+            
+            System.out.println("Le cable USB ne semble pas connecté");
+            return false;
+        }
+        return true;
+    }
+
+    public void sendConfiguration() {
+        String txt = configuration.toString();
+        if (arduino != null) {
+            arduino.serialWrite(txt);
+        }
+    }
+        
     /**
      * @param args the command line arguments
      */
@@ -105,28 +265,102 @@ public class BrailleEditor extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(BrailleEditor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-        
+
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
             new BrailleEditor().setVisible(true);
         });
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                if (arduino != null) {
+                    arduino.closeConnection();
+                }
+            }
+        });
     }
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private brailleprinter.FullBrailleEditor fullBrailleEditor1;
     private brailleprinter.FullTextEditor fullTextEditor1;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JSplitPane jSplitPane1;
     // End of variables declaration//GEN-END:variables
 
 //    final static int MAX_LINES = 25, MAX_CHARS = 29;
-  
     void onTextChange(String text) {
         String braille = AsciiBrailleConverter.toBraille(text);
         braille = braille.replaceAll("\r\n", "\n");
         fullBrailleEditor1.setText(braille);
+    }
+
+    private static String PAGE_INIT_SEQUENCE = "{";
+    private static String PAGE_END_SEQUENCE = "}";
+    private static String NEW_LINE_SEQUENCE = "\n";
+
+    private void onPrintBraille(String brailleTxt) {
+
+        try {
+            //File fileDir = new File("C:\\Users\\durands\\Desktop\\FabLab\\texte-txt_nat.txt");
+            
+            System.out.println(PAGE_INIT_SEQUENCE);
+            // TODO send config 
+
+            if (SEND_TO_PRINTER) {
+                arduino.serialWrite(PAGE_INIT_SEQUENCE);
+            }
+
+            //BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(fileDir), "UTF8"));
+            String[] lines = brailleTxt.split("\n");
+            for (int i = 0; i < BrailleTextPane.NB_CHAR_H && i < lines.length; i++) {
+                String str = lines[i].length() > BrailleTextPane.NB_CHAR_W ? lines[i].substring(0, BrailleTextPane.NB_CHAR_W) : lines[i];
+                str = AsciiBrailleConverter.brailleToArduinoString(str);
+                System.out.println(str);
+                // TODO rajouter des attentes 
+                if (SEND_TO_PRINTER) {
+                    arduino.serialWrite(str);
+                    arduino.serialWrite(NEW_LINE_SEQUENCE);
+                    waitEndOfLine(30000);
+                }
+            }
+
+            // arduino.serialWrite(PAGE_INIT_SEQUENCE);
+            System.out.println(PAGE_END_SEQUENCE);
+            if (SEND_TO_PRINTER) {
+                arduino.serialWrite(PAGE_END_SEQUENCE);
+            }
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    
+    boolean waitEndOfLine(long timeout) {
+        isEndOfLine = false;
+        long t0 = System.currentTimeMillis();
+        while (isEndOfLine == false) {
+            if (System.currentTimeMillis() - t0 > timeout) {
+                // Cannot read config
+                break;
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(BrailleEditor.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        if (isEndOfLine == true) {
+            // OK la configuration à bien ete recuperee 
+            isEndOfLine = false;
+            return true;
+        }
+        return false;
     }
 }

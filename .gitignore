@@ -1,2 +1,4 @@
 
 *.AVI
+*.class
+/Java/BraillePrinter/build/

@@ -3,17 +3,14 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group name="SynclientMfi">
-            <file>file:/C:/Users/durands/Desktop/FabLab/PrinterBraille/BraillePrinter/Java/BraillePrinter/src/brailleprinter/RightEditorPane.java</file>
-            <file>file:/C:/Users/durands/Desktop/FabLab/PrinterBraille/BraillePrinter/Java/BraillePrinter/src/brailleprinter/FullTextEditor.java</file>
-            <file>file:/C:/Users/durands/Desktop/FabLab/PrinterBraille/BraillePrinter/Java/BraillePrinter/src/brailleprinter/BrailleEditor.java</file>
+            <file>file:/C:/Users/durands/Desktop/FabLab/PrinterBraille/BraillePrinter/Java/BraillePrinter/src/brailleprinter/Arduino.java</file>
+            <file>file:/C:/Users/durands/Desktop/FabLab/PrinterBraille/BraillePrinter/Java/BraillePrinter/src/brailleprinter/Configuration.java</file>
+            <file>file:/C:/Users/durands/Desktop/FabLab/PrinterBraille/BraillePrinter/Java/BraillePrinter/src/brailleprinter/BraillePrinter.java</file>
             <file>file:/C:/Users/durands/Desktop/FabLab/PrinterBraille/BraillePrinter/Java/BraillePrinter/src/brailleprinter/BrailleTextPane.java</file>
             <file>file:/C:/Users/durands/Desktop/FabLab/PrinterBraille/BraillePrinter/Java/BraillePrinter/src/brailleprinter/EditorTextPane.java</file>
-            <file>file:/C:/Users/durands/Desktop/FabLab/PrinterBraille/BraillePrinter/Java/BraillePrinter/src/brailleprinter/FullBrailleEditor.java</file>
-            <file>file:/C:/Users/durands/Desktop/FabLab/PrinterBraille/BraillePrinter/Java/BraillePrinter/src/brailleprinter/Arduino.java</file>
-            <file>file:/C:/Users/durands/Desktop/FabLab/PrinterBraille/BraillePrinter/Java/BraillePrinter/src/brailleprinter/CustomDocumentFilter.java</file>
-            <file>file:/C:/Users/durands/Desktop/FabLab/PrinterBraille/BraillePrinter/Java/BraillePrinter/src/brailleprinter/BraillePrinter.java</file>
-            <file>file:/C:/Users/durands/Desktop/FabLab/PrinterBraille/BraillePrinter/Java/BraillePrinter/src/brailleprinter/CompileInfo.java</file>
             <file>file:/C:/Users/durands/Desktop/FabLab/PrinterBraille/BraillePrinter/Java/BraillePrinter/src/brailleprinter/AsciiBrailleConverter.java</file>
+            <file>file:/C:/Users/durands/Desktop/FabLab/PrinterBraille/BraillePrinter/Java/BraillePrinter/src/brailleprinter/ConfigurationPanel.java</file>
+            <file>file:/C:/Users/durands/Desktop/FabLab/PrinterBraille/BraillePrinter/Java/BraillePrinter/src/brailleprinter/BrailleEditor.java</file>
         </group>
     </open-files>
 </project-private>

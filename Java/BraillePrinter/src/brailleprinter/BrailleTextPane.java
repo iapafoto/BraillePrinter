@@ -39,7 +39,7 @@ import javax.swing.text.StyleConstants;
 public class BrailleTextPane extends JTextPane {
     
     public final static int 
-            NB_CHAR_W = 29, 
+            NB_CHAR_W = 27, 
             NB_CHAR_H = 25;
     
     private final static TexturePaint 
@@ -54,7 +54,7 @@ public class BrailleTextPane extends JTextPane {
         try {
             InputStream is = BrailleTextPane.class.getResourceAsStream("FreeMono.ttf");
             Font font = Font.createFont(Font.TRUETYPE_FONT, is);
-            setFont(font.deriveFont(20f));
+            setFont(font.deriveFont(24f));
             this.getDocument().putProperty(DefaultEditorKit.EndOfLineStringProperty, "\n");
         } catch (FontFormatException | IOException ex) {
             Logger.getLogger(BrailleTextPane.class.getName()).log(Level.SEVERE, null, ex);
