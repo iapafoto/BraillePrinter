@@ -6,6 +6,16 @@ Plotter Braille
 - Java: Send braille File (unicode to Arduino) - In progress
 - ... maybe a "Generic/Text Only" support to be recognized at a classical printer on Windows systems - Futur
 
+# Java GUI
+
+The java gui 
+- convert ascii char to braille 
+- indicates excedent caracters
+- unable to configure the printer 
+- send the ascii version on printer (via USB) in order to embosse it
+
+https://raw.githubusercontent.com/iapafoto/BraillePrinter/master/Media/ihm.png
+
 # Design
 
 https://www.thingiverse.com/thing:2841496
