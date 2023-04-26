@@ -104,17 +104,7 @@ public class BrailleTextPane extends JTextPane {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-/*
-        if (hightErrors != null) {
-            for (List<ErrorSeg> lst : hightErrors.values()) {
-                for (ErrorSeg e : lst) {
-                    if (e.getOffset2() != null) {
-                        underlineSeg(g2, e.getOffset2(), e.getLength2(), e.getCriticity().getColor());                  
-                    }
-                }
-            }
-        }
-*/         
+
         Area area = new Area(new Rectangle2D.Double(0, 0, getWidth(), getHeight()));
         area.subtract(new Area(new Rectangle2D.Double(0, 0, wChar*NB_CHAR_W, textHeight*NB_CHAR_H)));
       
@@ -125,25 +115,7 @@ public class BrailleTextPane extends JTextPane {
         }
         
         g2.fill(area);        
-/*
-        if (isWithErrorDisplay && currentMessage != null) {
-            Map<ECriticity, List<ErrorSeg>> map = currentMessage.getErrorsByCriticity(); 
 
-            for (Map.Entry<ECriticity, List<ErrorSeg>> e : map.entrySet()) {
-                for (ErrorSeg seg : e.getValue()) {
-                    try {
-                        if (!seg.getProposals().isEmpty()) {
-                            Rectangle rec = this.modelToView(seg.getOffset());
-                            g2.setColor(Color.orange); //Color.green);
-                            g2.fillRect(rec.x, rec.y + rec.height-3, wCHar, 3);
-                        }
-                    } catch (BadLocationException ex) {
-    //            Exceptions.printStackTrace(ex);
-                    }
-                }
-            }
-        }
-*/
         g2.dispose();
         super.paintChildren(g);
     }

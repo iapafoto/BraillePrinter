@@ -235,9 +235,7 @@ public class Arduino {
         return tmp;
     }
 
-    
-    
-    
+
     public static void main(String[] args) {
         //String portname = Serial.list()[0]; // Mac OS X
         //String portname = "/dev/ttyUSB0"; // Linux

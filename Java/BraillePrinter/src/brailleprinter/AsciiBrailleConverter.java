@@ -22,8 +22,7 @@ public class AsciiBrailleConverter {
     static final char EMPTY = (char) 0x2800;
     static final char UNKNOWN = (char) 0;
 
-    public static String 
-            CH_NUM = "⠠",
+    public static String CH_NUM = "⠠",
             CH_MAJ = "⠨",
             CH_MAJ_SEQ = "⠒⠨";
 
@@ -31,7 +30,7 @@ public class AsciiBrailleConverter {
     static String brailleToArduinoString(String str) {
         char[] chars = str.toCharArray();
         String ascii = "";
-        for(char c : chars) {
+        for (char c : chars) {
             int pos = FULL_ASCII_TO_UNICODE_6_ANTOINE.indexOf(c);
             if (pos >= 0) {
                 ascii += fullAsciiToUnicode6_1.charAt(pos);
@@ -41,10 +40,11 @@ public class AsciiBrailleConverter {
         }
         return ascii;
     }
-        
-    enum EType { DIGIT, UPPER, UPPER_SEQ, UPPER_SEQ_FIRST, UPPER_SEQ_LAST, SIMPLE, MIX_CHAR, PUNCTUATION };
-    
-    
+
+    enum EType {
+        DIGIT, UPPER, UPPER_SEQ, UPPER_SEQ_FIRST, UPPER_SEQ_LAST, SIMPLE, MIX_CHAR, PUNCTUATION
+    };
+
 // http://braillelog.net/chiffres-et-signes-operatoires.php
     static final String asciiToBraille6_1 = " A1B'K2L@CIF/MSP\"E3H9O6R^DJG>NTQ,*5<-U8V.%[$+X!&;:4\\0Z7(_?W]#Y)=";
     static final String asciiToBraille6_2 = "⠀⠁⠂⠃⠄⠅⠆⠇⠈⠉⠊⠋⠌⠍⠎⠏⠐⠑⠒⠓⠔⠕⠖⠗⠘⠙⠚⠛⠜⠝⠞⠟⠠⠡⠢⠣⠤⠥⠦⠧⠨⠩⠪⠫⠬⠭⠮⠯⠰⠱⠲⠳⠴⠵⠶⠷⠸⠹⠺⠻⠼⠽⠾⠿";
@@ -57,7 +57,7 @@ public class AsciiBrailleConverter {
     static final String braille8Unicode_2 = " ⠂⠄⠆⠈⠊⠌⠎⠐⠒⠔⠖⠘⠚⠜⠞⠠⠢⠤⠦⠨⠪⠬⠮⠰⠲⠴⠶⠸⠺⠼⠾⡀⡂⡄⡆⡈⡊⡌⡎⡐⡒⡔⡖⡘⡚⡜⡞⡠⡢⡤⡦⡨⡪⡬⡮⡰⡲⡴⡶⡸⡺⡼⡾⢂⢆⢊⢎⢐⢒⢔⢖⢚⢜⢞⢢⢦⢪⢮⢰⢲⢴⢶⢺⢼⢾⣊⣎⣔⣚⣦⣪⣴⣶⣺";
 
     // valable de 32 a 32+128 (faire char-32 pour mapper correctement)
-    static final String fullAsciiToUnicode6_1 =           " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`ABCDEFGHIJKLMNOPQRSTUVWXYZ{|}~";
+    static final String fullAsciiToUnicode6_1 = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`ABCDEFGHIJKLMNOPQRSTUVWXYZ{|}~";
     //static final String FULL_ASCII_TO_UNICODE_6_2 =       "⠀⠮⠐⠼⠫⠩⠯⠄⠷⠾⠡⠬⠠⠤⠨⠌⠴⠂⠆⠒⠲⠢⠖⠶⠦⠔⠱⠰⠣⠿⠜⠹⠈⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵⠪⠳⠻⠘⠸⠀⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵⠀⠀⠀⠀⠀";
     // Variante avec les Chiffres « Antoine » cf wikipedia (systeme recomandé)
     static final String FULL_ASCII_TO_UNICODE_6_ANTOINE = "⠀⠮⠐⠼⠫⠩⠯⠄⠷⠾⠡⠬⠠⠤⠨⠌⠼⠡⠣⠩⠹⠱⠫⠻⠳⠪⠱⠰⠣⠿⠜⠹⠈⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵⠪⠳⠻⠘⠸⠀⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵⠀⠀⠀⠀⠀";
@@ -75,7 +75,7 @@ public class AsciiBrailleConverter {
 
         EType type;
         int posTxt,
-            posBraille;
+                posBraille;
         String txt, braille;
 
         WordElt(EType type, int posTxt, String txt) {
@@ -86,7 +86,7 @@ public class AsciiBrailleConverter {
 
         public String toBraille() {
             if (braille == null) {
-                switch(type) {
+                switch (type) {
                     case MIX_CHAR:
                         braille = mixToBraille(txt);
                         break;
@@ -97,20 +97,14 @@ public class AsciiBrailleConverter {
                         braille = uppersToBraille(txt);
                         break;
                     case UPPER_SEQ_FIRST:
-                        braille = CH_MAJ_SEQ + simpleToBraille(txt); 
+                        braille = CH_MAJ_SEQ + simpleToBraille(txt);
                         break;
                     case UPPER_SEQ_LAST:
                         braille = CH_MAJ + simpleToBraille(txt);
                         break;
                     case UPPER_SEQ:
-                        braille = simpleToBraille(txt);
-                        break;
                     case SIMPLE:
-                        braille = simpleToBraille(txt); 
-                        break;
                     case PUNCTUATION:
-                        braille = simpleToBraille(txt);
-                        break;
                     default:
                         braille = simpleToBraille(txt);
                         break;
@@ -118,7 +112,7 @@ public class AsciiBrailleConverter {
             }
             return braille;
         }
-        
+
         public void setType(EType type) {
             if (type != this.type) {
                 this.braille = null;
@@ -129,7 +123,7 @@ public class AsciiBrailleConverter {
         private void setPosInBraille(int pos) {
             posBraille = pos;
         }
-        
+
     }
 
 // TODO    
@@ -138,37 +132,37 @@ public class AsciiBrailleConverter {
 // devant le premier mot de cette suite, le symbole constitué du caractère "deux-points" (combinaison 2 5) suivi du signe de majuscule. 
 // La fin de cette séquence en majuscule se matérialise par la présence d'un seul signe de majuscule devant son dernier mot.
     public static String digitsToBraille(String word) {
-            return CH_NUM + simpleToBraille(word);
-        }
+        return CH_NUM + simpleToBraille(word);
+    }
 
     public static String uppersToBraille(String word) {
-            return (word.length() > 1 ? CH_MAJ + CH_MAJ : CH_MAJ) + simpleToBraille(word);
-        }
+        return (word.length() > 1 ? CH_MAJ + CH_MAJ : CH_MAJ) + simpleToBraille(word);
+    }
 
     public static String mixToBraille(String word) {
-            String braille = "";
-            for (char ch : word.toCharArray()) {
-                int id = ch - 32;
-                if (Character.isUpperCase(ch)) {
-                    braille += CH_MAJ;
-                }
-                braille += (id >= 0 && id < defaultFullAsciiToUnicode.length()) ? defaultFullAsciiToUnicode.charAt(id) : '?';
+        String braille = "";
+        for (char ch : word.toCharArray()) {
+            int id = ch - 32;
+            if (Character.isUpperCase(ch)) {
+                braille += CH_MAJ;
             }
-            return braille;
+            braille += (id >= 0 && id < defaultFullAsciiToUnicode.length()) ? defaultFullAsciiToUnicode.charAt(id) : '?';
         }
+        return braille;
+    }
 
     public static String simpleToBraille(String word) {
-            String braille = "";
-            for (char ch : word.toCharArray()) {
-                if (ch == '\n' || ch == '\r' || ch == '\t') {
-                    braille += ch;
-                } else {
-                    int id = ch - 32;
-                    braille += (id >= 0 && id < defaultFullAsciiToUnicode.length()) ? defaultFullAsciiToUnicode.charAt(id) : '?';
-                }
+        String braille = "";
+        for (char ch : word.toCharArray()) {
+            if (ch == '\n' || ch == '\r' || ch == '\t') {
+                braille += ch;
+            } else {
+                int id = ch - 32;
+                braille += (id >= 0 && id < defaultFullAsciiToUnicode.length()) ? defaultFullAsciiToUnicode.charAt(id) : '?';
             }
-            return braille;
         }
+        return braille;
+    }
 
     public static class WordEncoder {
 
@@ -215,13 +209,13 @@ public class AsciiBrailleConverter {
                     }
                     lstElt.add(elt);
                 }
-                
+
                 if (digits != null && !digits.isEmpty()) {
                     endUpperSequence(upperSequence);
                     elt = new WordElt(EType.DIGIT, m.start(2), digits);
                     lstElt.add(elt);
                 }
-                
+
                 if (nonAscii != null && !nonAscii.isEmpty()) {
                     if (nonAscii.contains("\n")) {
                         endUpperSequence(upperSequence);
@@ -230,7 +224,7 @@ public class AsciiBrailleConverter {
                     lstElt.add(elt);
                 }
             }
-            
+
             // }            
             String sTranslated = "";
             for (WordElt e : lstElt) {
@@ -243,10 +237,10 @@ public class AsciiBrailleConverter {
         private void endUpperSequence(List<WordElt> upperSequence) {
             if (upperSequence.size() >= 4) {
                 upperSequence.get(0).setType(EType.UPPER_SEQ_FIRST);
-                for (int i=1; i<upperSequence.size()-1; i++) {
+                for (int i = 1; i < upperSequence.size() - 1; i++) {
                     upperSequence.get(i).setType(EType.UPPER_SEQ);
                 }
-                upperSequence.get(upperSequence.size()-1).setType(EType.UPPER_SEQ_LAST);
+                upperSequence.get(upperSequence.size() - 1).setType(EType.UPPER_SEQ_LAST);
             }
             // La sequence majuscule est terminee
             upperSequence.clear();
@@ -317,104 +311,7 @@ public class AsciiBrailleConverter {
 //AsciiBrailleConverter m = new AsciiBrailleConverter();
     static void initAsciiBrailleConverter() {
         AsciiBrailleConverter m = new AsciiBrailleConverter();
-
         m.put(asciiToBraille6_1, asciiToBraille6_2);
-        /* 
-        m.put('!' , 2,3,4,6);
-	m.put('\"', 5);
-	m.put('#' , 3,4,5,6);
-	m.put('$' , 1,2,4,6);
-	m.put('%' , 1,4,6);
-	m.put('&' , 1,2,3,4,6);
-	m.put('\'' , 3);
-	m.put('(' , 1,2,3,5,6);
-	m.put(')' , 2,3,4,5,6);
-	m.put('*' , 1,6);
-	m.put('+' , 3,4,6);
-	m.put(',' , 6);
-	m.put('-' , 3,6);
-	m.put('.' , 4,6);
-	m.put('/' , 3,4);
-	m.put('0' , 3,5,6);
-	m.put('1' , 2);
-	m.put('2' , 2,3);
-	m.put('3' , 2,5);
-	m.put('4' , 2,5,6);
-	m.put('5' , 2,6);
-	m.put('6' , 2,3,5);
-	m.put('7' , 2,3,5,6);
-	m.put('8' , 2,3,6);
-	m.put('9' , 3,5);
-	m.put(',' , 1,5,6);
-	m.put(';' , 5,6);
-	m.put('<' , 1,2,6);
-	m.put('=' , 1,2,3,4,5,6);
-	m.put('>' , 3,4,5);
-	m.put('?' , 1,4,5,6);
-	m.put('@' , 4);
-	m.put('A' , 1,7);
-	m.put('B' , 1,2,7);
-	m.put('C' , 1,4,7);
-	m.put('D' , 1,4,5,7);
-	m.put('E' , 1,5,7);
-	m.put('F' , 1,2,4,7);
-	m.put('G' , 1,2,4,5,7);
-	m.put('H' , 1,2,5,7);
-	m.put('I' , 2,4,7);
-	m.put('J' , 2,4,5,7);
-	m.put('K' , 1,3,7);
-	m.put('L' , 1,2,3,7);
-	m.put('M' , 1,3,4,7);
-	m.put('N' , 1,3,4,5,7);
-	m.put('O' , 1,3,5,7);
-	m.put('P' , 1,2,3,4,7);
-	m.put('Q' , 1,2,3,4,5,7);
-	m.put('R' , 1,2,3,5,7);
-	m.put('S' , 2,3,4,7);
-	m.put('T' , 2,3,4,5,7);
-	m.put('U' , 1,3,6,7);
-	m.put('V' , 1,2,3,6,7);
-	m.put('W' , 2,4,5,6,7);
-	m.put('X' , 1,3,4,6,7);
-	m.put('Y' , 1,3,4,5,6,7);
-	m.put('Z' , 1,3,5,6,7);
-	m.put('[' , 2,4,6);
-	m.put('\\', 1,2,5,6);
-	m.put(']' , 1,2,4,5,6);
-	m.put('^' , 4,5);
-	m.put('_' , 4,5,6);
-	m.put('`' , 4,7);
-	m.put('a' , 1);
-	m.put('b' , 1,2);
-	m.put('c' , 1,4);
-	m.put('d' , 1,4,5);
-	m.put('e' , 1,5);
-	m.put('f' , 1,2,4);
-	m.put('g' , 1,2,4,5);
-	m.put('h' , 1,2,5);
-	m.put('i' , 2,4);
-	m.put('j' , 2,4,5);
-	m.put('k' , 1,3);
-	m.put('l' , 1,2,3);
-	m.put('m' , 1,3,4);
-	m.put('n' , 1,3,4,5);
-	m.put('o' , 1,3,5);
-	m.put('p' , 1,2,3,4);
-	m.put('q' , 1,2,3,4,5);
-	m.put('r' , 1,2,3,5);
-	m.put('s' , 2,3,4);
-	m.put('t' , 2,3,4,5);
-	m.put('u' , 1,3,6);
-	m.put('v' , 1,2,3,6);
-	m.put('w' , 2,4,5,6);
-	m.put('x' , 1,3,4,6);
-	m.put('y' , 1,3,4,5,6);
-	m.put('z' , 1,3,5,6);
-	m.put('{' , 2,4,6,7);
-	m.put('|' , 1,2,5,6,7);
-	m.put('}' , 1,2,4,5,6,7);
-	m.put('~' , 4,5,7);
-         */
         m.printAll();
     }
 

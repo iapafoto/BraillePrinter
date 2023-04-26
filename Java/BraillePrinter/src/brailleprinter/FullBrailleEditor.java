@@ -31,9 +31,6 @@ import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEdit;
 
-
-
-
 /**
  *
  * @author durands
@@ -41,35 +38,34 @@ import javax.swing.undo.UndoableEdit;
 public class FullBrailleEditor extends JPanel {
 
     public interface Compilator {
+
         Map<Integer, List<CompileInfo>> buildProgram(final String codeSrc);
-    } 
-    
-    
-    UndoManager undoManager;    
+    }
+
+    UndoManager undoManager;
     RightEditorPane rightPane;
     JScrollPane jScrollPane1;
     BrailleTextPane codePane;
     TextLineNumber textLineNumber;
     Timer timerCompile;
     DefaultStyledDocument doc;
-    
+
     BrailleEditor presenter;
-    
+
     public void setPresenter(BrailleEditor presenter) {
-        this.presenter = presenter; 
+        this.presenter = presenter;
     }
-            
+
     //Compilator compilator;
-    
     public FullBrailleEditor() {
         super();
         initComponent();
         postInit();
     }
-    
+
     protected void initComponent() {
         this.setLayout(new BorderLayout());
-        
+
         jScrollPane1 = new JScrollPane();
         jScrollPane1.setBorder(null);
         jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -91,45 +87,23 @@ public class FullBrailleEditor extends JPanel {
 
         add(rightPane, BorderLayout.EAST);
     }
-    
+
     protected void postInit() {
-                codePane.setFocusTraversalKeysEnabled(false);
-//...
-// Our words to complete
-/*
-         keywords = new ArrayList<String>(5);
-         keywords.add("example");
-         keywords.add("autocomplete");
-         keywords.add("stackabuse");
-         keywords.add("java");*/
-//AutoComplete autoComplete = new AutoComplete(codePane, Arrays.asList(instructions));
-//doc.addDocumentListener(autoComplete);
-
-// Maps the tab key to the commit action, which finishes the autocomplete
-// when given a suggestion
-//codePane.getInputMap().put(KeyStroke.getKeyStroke("TAB"), COMMIT_ACTION);
-//codePane.getActionMap().put(COMMIT_ACTION, autoComplete.new CommitAction());
-
-      //  OpenCLDoc doc = new OpenCLDoc();
-    //    this.codePane.setDocument(doc);
-      //  this.jSplitPane2.setTopComponent(screen);
-      
+        codePane.setFocusTraversalKeysEnabled(false);
         doc = new DefaultStyledDocument();
         codePane.setDocument(doc);
         doc.setDocumentFilter(new CustomDocumentFilter(codePane));
         doc.putProperty(DefaultEditorKit.EndOfLineStringProperty, "\n");
-       
+
         undoManager = new UndoManager();
         doc.addUndoableEditListener((UndoableEditEvent e) -> {
-            //if(!"style change".equals(e.getEdit().getPresentationName())) {
             UndoableEdit edit = e.getEdit();
-            if (edit instanceof AbstractDocument.DefaultDocumentEvent &&
-                    ((AbstractDocument.DefaultDocumentEvent)edit).getType() == AbstractDocument.DefaultDocumentEvent.EventType.CHANGE) {
+            if (edit instanceof AbstractDocument.DefaultDocumentEvent
+                    && ((AbstractDocument.DefaultDocumentEvent) edit).getType() == AbstractDocument.DefaultDocumentEvent.EventType.CHANGE) {
                 return;
             }
-            //    System.out.println("Add edit");
             undoManager.addEdit(e.getEdit());
-            
+
             timerCompile.restart();
         });
 
@@ -165,93 +139,88 @@ public class FullBrailleEditor extends JPanel {
         });
 
         timerCompile = new Timer(600, (ActionEvent e) -> {
-                    final Map<Integer, List<CompileInfo>> lstInfo1 = doBuildProgram(codePane.getText());
-                    codePane.setCompileInfo(lstInfo1);
-                    rightPane.setCompileInfo(lstInfo1, codePane);
-                    textLineNumber.setCompileInfo(lstInfo1);
-                });
+            final Map<Integer, List<CompileInfo>> lstInfo1 = doBuildProgram(codePane.getText());
+            codePane.setCompileInfo(lstInfo1);
+            rightPane.setCompileInfo(lstInfo1, codePane);
+            textLineNumber.setCompileInfo(lstInfo1);
+        });
         timerCompile.setRepeats(false);
-    
+
     }
 
-//    public void setDocument(final Document doc) {
-//        codePane.setDocument(doc);
-//        // TODO recompile
-//    }
     public void setText(final String srcCode) {
         codePane.setText(srcCode);
-        // TODO recompile
-    }
-    public String getText() {
-        return codePane.getText();
-        // TODO recompile
-    }
-    
-//    public void setCompilator(final Compilator compilator) {
-//        this.compilator = compilator;
-//    }
-    
-    public int getLineIdOfCaret(final int pos) {
-        final Element root = codePane.getDocument().getDefaultRootElement();
-        return root.getElementIndex(pos)+1;
-    }
-        
-    private Map<Integer, List<CompileInfo>> doBuildProgram(final String braille) {
-        Map<Integer, List<CompileInfo>> info = new HashMap<>();
-        
-        String[] lines = braille.split("\n");
-            
-        if (lines.length > BrailleTextPane.NB_CHAR_H) {
-            List<CompileInfo> errs = new ArrayList<>();
-            errs.add(new CompileInfo("Texte trop long",0,BrailleTextPane.NB_CHAR_H, 0));
-            info.put(BrailleTextPane.NB_CHAR_H, errs);
-        }
-       
-        for (int i=0; i<lines.length; i++) {
-            if (lines[i].length() > BrailleTextPane.NB_CHAR_W) {
-                List<CompileInfo> errs = new ArrayList<>();
-                errs.add(new CompileInfo("Texte trop long",0,i+1, BrailleTextPane.NB_CHAR_W));
-                info.put(i+1, errs);
-            }
-        }  
-        return info; //compilator == null ? null : compilator.buildProgram(codeSrc);
     }
 
-    
+    public String getText() {
+        return codePane.getText();
+        
+    }
+
+    public int getLineIdOfCaret(final int pos) {
+        final Element root = codePane.getDocument().getDefaultRootElement();
+        return root.getElementIndex(pos) + 1;
+    }
+
+    private Map<Integer, List<CompileInfo>> doBuildProgram(final String braille) {
+        Map<Integer, List<CompileInfo>> info = new HashMap<>();
+
+        String[] lines = braille.split("\n");
+
+        if (lines.length > BrailleTextPane.NB_CHAR_H) {
+            List<CompileInfo> errs = new ArrayList<>();
+            errs.add(new CompileInfo("Texte trop long", 0, BrailleTextPane.NB_CHAR_H, 0));
+            info.put(BrailleTextPane.NB_CHAR_H, errs);
+        }
+
+        for (int i = 0; i < lines.length; i++) {
+            if (lines[i].length() > BrailleTextPane.NB_CHAR_W) {
+                List<CompileInfo> errs = new ArrayList<>();
+                errs.add(new CompileInfo("Texte trop long", 0, i + 1, BrailleTextPane.NB_CHAR_W));
+                info.put(i + 1, errs);
+            }
+        }
+        return info;
+    }
+
     // -------------------------------------------------------------------------
-    
-    Map<Integer,List<CompileInfo>> lstInfo;
+    Map<Integer, List<CompileInfo>> lstInfo;
+
     public List<CompileInfo> getInfoAtLine(final int lineId) {
-        if (lstInfo == null) return null;
+        if (lstInfo == null) {
+            return null;
+        }
         return this.lstInfo.get(lineId);
     }
-    
+
     public String getTextErrorForLine(final int lineId) {
         return getTextErrorFor(getInfoAtLine(lineId));
     }
-    
+
     public String getTextErrorFor(final List<CompileInfo> lst) {
         String txt = "";
         if (lst != null) {
             txt += "<html>";
-            for(int i=0; i<lst.size(); i++) {
-                if (i!=0) txt += "<br/>";
+            for (int i = 0; i < lst.size(); i++) {
+                if (i != 0) {
+                    txt += "<br/>";
+                }
                 txt += lst.get(i).txt;
             }
             txt += "</html>";
         }
         return txt;
     }
-    
-    public void setCompileInfos(Map<Integer,List<CompileInfo>> lstInfo) {
+
+    public void setCompileInfos(Map<Integer, List<CompileInfo>> lstInfo) {
         this.lstInfo = lstInfo;
     }
-    
+
     public Set<Integer> getLinesWithInfos() {
         return lstInfo != null ? lstInfo.keySet() : null;
     }
-    
-    public Map<Integer,List<CompileInfo>> getCompileInfos() {
+
+    public Map<Integer, List<CompileInfo>> getCompileInfos() {
         return lstInfo;
     }
 

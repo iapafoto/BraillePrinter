@@ -19,16 +19,16 @@ public class BrailleEditor extends javax.swing.JFrame {
 
     private static final boolean SEND_TO_PRINTER = true;
 
-    private static void parseConfiguration(String str) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
     // TODO read conf in file
     private static Configuration configuration = new Configuration();
     private static boolean isConfigRead = false, isEndOfLine = false;
 
     private final String GET_CONF_CHAR = "~";
     private final String SAVE_CONF_CHAR = "^";
+    
+    private static String PAGE_INIT_SEQUENCE = "{";
+    private static String PAGE_END_SEQUENCE = "}";
+    private static String NEW_LINE_SEQUENCE = "\n";
     
     /**
      * Creates new form BrailleEditor
@@ -244,45 +244,7 @@ public class BrailleEditor extends javax.swing.JFrame {
             arduino.serialWrite(txt);
         }
     }
-        
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(BrailleEditor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> {
-            new BrailleEditor().setVisible(true);
-        });
-
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                if (arduino != null) {
-                    arduino.closeConnection();
-                }
-            }
-        });
-    }
-
+       
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private brailleprinter.FullBrailleEditor fullBrailleEditor1;
@@ -294,22 +256,15 @@ public class BrailleEditor extends javax.swing.JFrame {
     private javax.swing.JSplitPane jSplitPane1;
     // End of variables declaration//GEN-END:variables
 
-//    final static int MAX_LINES = 25, MAX_CHARS = 29;
     void onTextChange(String text) {
         String braille = AsciiBrailleConverter.toBraille(text);
         braille = braille.replaceAll("\r\n", "\n");
         fullBrailleEditor1.setText(braille);
     }
 
-    private static String PAGE_INIT_SEQUENCE = "{";
-    private static String PAGE_END_SEQUENCE = "}";
-    private static String NEW_LINE_SEQUENCE = "\n";
-
     private void onPrintBraille(String brailleTxt) {
 
         try {
-            //File fileDir = new File("C:\\Users\\durands\\Desktop\\FabLab\\texte-txt_nat.txt");
-            
             System.out.println(PAGE_INIT_SEQUENCE);
             // TODO send config 
 
@@ -317,7 +272,6 @@ public class BrailleEditor extends javax.swing.JFrame {
                 arduino.serialWrite(PAGE_INIT_SEQUENCE);
             }
 
-            //BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(fileDir), "UTF8"));
             String[] lines = brailleTxt.split("\n");
             for (int i = 0; i < BrailleTextPane.NB_CHAR_H && i < lines.length; i++) {
                 String str = lines[i].length() > BrailleTextPane.NB_CHAR_W ? lines[i].substring(0, BrailleTextPane.NB_CHAR_W) : lines[i];
@@ -363,4 +317,45 @@ public class BrailleEditor extends javax.swing.JFrame {
         }
         return false;
     }
+    
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(BrailleEditor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        
+        //</editor-fold>
+
+        //</editor-fold>
+
+        // Create and display the form 
+        java.awt.EventQueue.invokeLater(() -> {
+            new BrailleEditor().setVisible(true);
+        });
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                if (arduino != null) {
+                    arduino.closeConnection();
+                }
+            }
+        });
+    }
+
 }

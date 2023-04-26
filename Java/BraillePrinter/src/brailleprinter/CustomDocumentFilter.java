@@ -21,27 +21,26 @@ import javax.swing.text.StyledDocument;
  *
  * @author durands
  */
-final class CustomDocumentFilter extends DocumentFilter
-{
-    private final static String[] LST_KEYWORDS = {"⠠","⠨", "⠒"};  
-    
-    JTextPane textPane;
+final class CustomDocumentFilter extends DocumentFilter {
 
+    private final static String[] LST_KEYWORDS = {"⠠", "⠨", "⠒"};
+
+    JTextPane textPane;
+    private final StyledDocument styledDocument;
+
+    private final StyleContext styleContext = StyleContext.getDefaultStyleContext();
+    private final AttributeSet greenAttributeSet = styleContext.addAttribute(styleContext.getEmptySet(), StyleConstants.Foreground, new Color(0, 128, 0)),
+            redAttributeSet = styleContext.addAttribute(styleContext.getEmptySet(), StyleConstants.Foreground, Color.red),
+            blackAttributeSet = styleContext.addAttribute(styleContext.getEmptySet(), StyleConstants.Foreground, Color.BLACK);
+
+    // Use a regular expression to find the words you are looking for
+    Pattern pattern = buildPattern();
+    
+    
     public CustomDocumentFilter(JTextPane textPane) {
         this.textPane = textPane;
         styledDocument = textPane.getStyledDocument();
     }
-            
-        private final StyledDocument styledDocument;
-
-        private final StyleContext styleContext = StyleContext.getDefaultStyleContext();
-        private final AttributeSet 
-                greenAttributeSet = styleContext.addAttribute(styleContext.getEmptySet(), StyleConstants.Foreground, new Color(0,128,0)),
-                redAttributeSet = styleContext.addAttribute(styleContext.getEmptySet(), StyleConstants.Foreground, Color.red),
-                blackAttributeSet = styleContext.addAttribute(styleContext.getEmptySet(), StyleConstants.Foreground, Color.BLACK);
-
-    // Use a regular expression to find the words you are looking for
-    Pattern pattern = buildPattern();
 
     @Override
     public void insertString(FilterBypass fb, int offset, String text, AttributeSet attributeSet) throws BadLocationException {
@@ -67,17 +66,18 @@ final class CustomDocumentFilter extends DocumentFilter
     /**
      * Runs your updates later, not during the event notification.
      */
-    private void handleTextChanged()
-    {
+    private void handleTextChanged() {
         SwingUtilities.invokeLater(this::updateTextStyles);
     }
 
     /**
-     * Build the regular expression that looks for the whole word of each word that you wish to find.  The "\\b" is the beginning or end of a word boundary.  The "|" is a regex "or" operator.
+     * Build the regular expression that looks for the whole word of each word
+     * that you wish to find. The "\\b" is the beginning or end of a word
+     * boundary. The "|" is a regex "or" operator.
+     *
      * @return
      */
-    private Pattern buildPattern()
-    {
+    private Pattern buildPattern() {
         StringBuilder sb = new StringBuilder();
         for (String token : LST_KEYWORDS) {
             //sb.append("\\b"); // Start of word boundary
@@ -94,9 +94,7 @@ final class CustomDocumentFilter extends DocumentFilter
         return p;
     }
 
-
-    private void updateTextStyles()
-    {
+    private void updateTextStyles() {
         String txt = textPane.getText();
 
         // Clear existing styles
